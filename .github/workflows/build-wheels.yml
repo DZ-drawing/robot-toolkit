@@ -71,8 +71,7 @@ jobs:
           CIBW_BUILD: cp310-* cp311-* cp312-*
           CIBW_SKIP: "*-musllinux_* pp*"
           CIBW_ARCHS_MACOS: arm64
-          CIBW_BEFORE_ALL_MACOS: pip install setuptools wheel
-          CIBW_BEFORE_BUILD_MACOS: brew install cmake
+          CIBW_BEFORE_BUILD_MACOS: pip install setuptools wheel && brew install cmake
           CIBW_TEST_COMMAND: pytest {project}/test_ik.py {project}/test_dyn.py -v --no-header
           CIBW_TEST_REQUIRES: pytest numpy
           CIBW_ENVIRONMENT_MACOS: >-

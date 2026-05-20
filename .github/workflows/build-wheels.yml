@@ -52,11 +52,18 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64]
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      ACTIONS_RUNNER_TOOL_CACHE: /tmp/toolcache
       RUNNER_TOOL_CACHE: /tmp/toolcache
+      ACTIONS_RUNNER_TOOL_CACHE: /tmp/toolcache
+      AGENT_TOOLSDIRECTORY: /tmp/toolcache
+      # Prevent setup-python from creating /Users/runner
+      SETUPTOOLS_USE_DISTUTILS: stdlib
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Ensure tool cache dirs exist
+        run: |
+          mkdir -p /tmp/toolcache /tmp/toolcache/Python
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17.0

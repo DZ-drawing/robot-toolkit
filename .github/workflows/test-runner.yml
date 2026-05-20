@@ -1,0 +1,13 @@
+name: Test Runner
+on: workflow_dispatch
+
+jobs:
+  test_macos:
+    name: Test Mac mini runner
+    runs-on: [self-hosted, macOS, ARM64]
+    steps:
+      - run: |
+          echo "Hello from Mac mini!"
+          uname -a
+          sw_vers
+          python3 --version

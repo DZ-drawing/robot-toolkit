@@ -52,31 +52,26 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64]
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      RUNNER_TOOL_CACHE: /tmp/toolcache
-      ACTIONS_RUNNER_TOOL_CACHE: /tmp/toolcache
-      AGENT_TOOLSDIRECTORY: /tmp/toolcache
-      # Prevent setup-python from creating /Users/runner
-      SETUPTOOLS_USE_DISTUTILS: stdlib
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure tool cache dirs exist
+      - name: Install build tools and cibuildwheel
         run: |
-          mkdir -p /tmp/toolcache /tmp/toolcache/Python
+          brew install cmake python@3.10 python@3.11 python@3.12 || true
+          python3 -m pip install cibuildwheel
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17.0
+        run: cibuildwheel --output-dir wheelhouse
         env:
+          CIBW_PYTHON_SOURCE: "system"
           CIBW_BUILD: cp310-* cp311-* cp312-*
           CIBW_SKIP: "*-musllinux_* pp*"
           CIBW_ARCHS_MACOS: arm64
-          CIBW_BEFORE_BUILD_MACOS: pip install setuptools wheel && brew install cmake
-          CIBW_TEST_COMMAND: pytest {project}/test_ik.py {project}/test_dyn.py -v --no-header
+          CIBW_BEFORE_BUILD_MACOS: pip install cmake
+          CIBW_TEST_COMMAND: "pytest {project}/test_ik.py {project}/test_dyn.py -v --no-header"
           CIBW_TEST_REQUIRES: pytest numpy
-          CIBW_ENVIRONMENT_MACOS: >-
-            MACOSX_DEPLOYMENT_TARGET=10.9
-            PIP_NO_BUILD_ISOLATION=0
+          MACOSX_DEPLOYMENT_TARGET: "10.9"
 
       - uses: actions/upload-artifact@v4
         with:

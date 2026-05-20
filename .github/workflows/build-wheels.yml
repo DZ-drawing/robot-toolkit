@@ -53,6 +53,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       ACTIONS_RUNNER_TOOL_CACHE: /tmp/toolcache
+      RUNNER_TOOL_CACHE: /tmp/toolcache
 
     steps:
       - uses: actions/checkout@v4

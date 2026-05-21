@@ -8,9 +8,9 @@ Author: Danny Zeng
 License: MIT
 """
 
-import numpy as np
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+
+import numpy as np
 
 
 @dataclass
@@ -44,7 +44,7 @@ class RobotModel:
     """Serial manipulator defined by Denavit-Hartenberg parameters."""
 
     def __init__(
-        self, dh_params: List[DHParam], joint_limits: Optional[List[Tuple[float, float]]] = None
+        self, dh_params: list[DHParam], joint_limits: list[tuple[float, float]] | None = None
     ):
         """
         Args:
@@ -77,7 +77,7 @@ class RobotModel:
             return T, transforms
         return T
 
-    def end_effector_pose(self, joint_angles: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def end_effector_pose(self, joint_angles: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Return (position, rotation_matrix) of end-effector."""
         T = self.forward_kinematics(joint_angles)
         return T[:3, 3], T[:3, :3]
@@ -108,12 +108,12 @@ class RobotModel:
     def ik_solve(
         self,
         target_pose: np.ndarray,  # 4x4 homogeneous transform
-        initial_guess: Optional[np.ndarray] = None,
+        initial_guess: np.ndarray | None = None,
         max_iterations: int = 200,
         position_tolerance: float = 1e-4,  # meters
         orientation_tolerance: float = 1e-3,  # radians
         damping: float = 0.1,
-    ) -> Tuple[bool, np.ndarray, int, List[float]]:
+    ) -> tuple[bool, np.ndarray, int, list[float]]:
         """Inverse kinematics using damped least-squares (Levenberg-Marquardt).
 
         Solves for joint angles that achieve the target end-effector pose.
@@ -167,7 +167,9 @@ class RobotModel:
                 and np.linalg.norm(orient_error) < orientation_tolerance
             ):
                 # Clamp to joint limits
-                q = np.clip(q, [l[0] for l in self.joint_limits], [l[1] for l in self.joint_limits])
+                q = np.clip(
+                    q, [lim[0] for lim in self.joint_limits], [lim[1] for lim in self.joint_limits]
+                )
                 return True, q, iteration + 1, errors
 
             # Compute Jacobian and update
@@ -191,7 +193,9 @@ class RobotModel:
             delta_q = np.nan_to_num(delta_q, nan=0.0, posinf=1.0, neginf=-1.0)
             q = q + delta_q
             # Clamp to joint limits
-            q = np.clip(q, [l[0] for l in self.joint_limits], [l[1] for l in self.joint_limits])
+            q = np.clip(
+                q, [lim[0] for lim in self.joint_limits], [lim[1] for lim in self.joint_limits]
+            )
 
         return False, q, max_iterations, errors
 

@@ -1,11 +1,12 @@
 """Test suite for the 6-DOF IK solver."""
 
-import numpy as np
 import time
+
+import numpy as np
+
 from robot_ik.ik_solver import (
-    RobotModel,
     DHParam,
-    dh_transform,
+    RobotModel,
     six_dof_articulated,
 )
 
@@ -27,7 +28,7 @@ def test_ik_roundtrip():
     robot = six_dof_articulated()
     np.random.seed(123)
     failures = 0
-    for i in range(20):
+    for _i in range(20):
         q_orig = np.random.uniform(-0.8, 0.8, 6)
         target = robot.forward_kinematics(q_orig)
         success, q_solved, iters, errors = robot.ik_solve(target, max_iterations=300)
@@ -147,7 +148,7 @@ def benchmark():
             failures += 1
 
     times_ms = np.array(times) * 1000
-    print(f"\n  Benchmark (200 solves):")
+    print("\n  Benchmark (200 solves):")
     print(f"    Avg time:  {np.mean(times_ms):.1f} ms")
     print(f"    P50 time:  {np.median(times_ms):.1f} ms")
     print(f"    P95 time:  {np.percentile(times_ms, 95):.1f} ms")

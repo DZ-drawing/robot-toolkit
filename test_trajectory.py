@@ -1,7 +1,8 @@
 """Test suite for trajectory planning module (TDD — RED phase)."""
 
 import numpy as np
-from robot_ik.ik_solver import RobotModel, six_dof_articulated
+
+from robot_ik.ik_solver import six_dof_articulated
 
 
 def test_linear_boundary_conditions():
@@ -163,12 +164,12 @@ def test_trapezoidal_velocity_limits():
 
     # Check velocity limits (1% tolerance)
     v_peak = np.max(np.abs(traj.joint_velocities), axis=0)
-    for i, (v, v_max_i) in enumerate(zip(v_peak, v_max)):
+    for i, (v, v_max_i) in enumerate(zip(v_peak, v_max, strict=False)):
         assert v <= v_max_i * 1.01, f"Joint {i} velocity {v:.3f} > v_max {v_max_i} (1% tol)"
 
     # Check acceleration limits (1% tolerance)
     a_peak = np.max(np.abs(traj.joint_accelerations), axis=0)
-    for i, (a, a_max_i) in enumerate(zip(a_peak, a_max)):
+    for i, (a, a_max_i) in enumerate(zip(a_peak, a_max, strict=False)):
         assert a <= a_max_i * 1.01, f"Joint {i} accel {a:.3f} > a_max {a_max_i} (1% tol)"
 
     print("  [PASS] test_trapezoidal_velocity_limits")
@@ -266,7 +267,7 @@ def test_waypoint_no_blend():
     traj = waypoint_trajectory(waypoints, times, method="quintic", blend_radius=0.0, dt=0.01)
 
     # Verify positions at waypoints
-    for i, (wp, t_target) in enumerate(zip(waypoints, times)):
+    for i, (wp, t_target) in enumerate(zip(waypoints, times, strict=False)):
         # Find index closest to target time
         idx = np.argmin(np.abs(traj.time_points - t_target))
         q_actual = traj.joint_positions[idx]
@@ -309,11 +310,11 @@ def test_waypoint_with_blend():
 def test_duration_match():
     """For each trajectory type, verify duration matches TrajectoryResult.duration."""
     from robot_ik.trajectory import (
-        joint_linear_interpolation,
         joint_cubic_interpolation,
+        joint_linear_interpolation,
         joint_quintic_interpolation,
-        trapezoidal_velocity_profile,
         s_curve_profile,
+        trapezoidal_velocity_profile,
         waypoint_trajectory,
     )
 
@@ -326,25 +327,25 @@ def test_duration_match():
 
     # Test each trajectory type
     traj1 = joint_linear_interpolation(q_start, q_end, duration, dt=0.01)
-    assert abs(traj1.duration - duration) < 0.01, f"Linear duration mismatch"
+    assert abs(traj1.duration - duration) < 0.01, "Linear duration mismatch"
 
     traj2 = joint_cubic_interpolation(q_start, q_end, duration, dt=0.01)
-    assert abs(traj2.duration - duration) < 0.01, f"Cubic duration mismatch"
+    assert abs(traj2.duration - duration) < 0.01, "Cubic duration mismatch"
 
     traj3 = joint_quintic_interpolation(q_start, q_end, duration, dt=0.01)
-    assert abs(traj3.duration - duration) < 0.01, f"Quintic duration mismatch"
+    assert abs(traj3.duration - duration) < 0.01, "Quintic duration mismatch"
 
     traj4 = trapezoidal_velocity_profile(q_start, q_end, duration, v_max, a_max, dt=0.01)
-    assert abs(traj4.duration - duration) < 0.01, f"Trapezoidal duration mismatch"
+    assert abs(traj4.duration - duration) < 0.01, "Trapezoidal duration mismatch"
 
     traj5 = s_curve_profile(q_start, q_end, duration, v_max, a_max, j_max, dt=0.01)
-    assert abs(traj5.duration - duration) < 0.01, f"S-curve duration mismatch"
+    assert abs(traj5.duration - duration) < 0.01, "S-curve duration mismatch"
 
     # Waypoint trajectory
     waypoints = [q_start, q_end]
     times = [0.0, duration]
     traj6 = waypoint_trajectory(waypoints, times, method="quintic", dt=0.01)
-    assert abs(traj6.duration - duration) < 0.02, f"Waypoint duration mismatch"
+    assert abs(traj6.duration - duration) < 0.02, "Waypoint duration mismatch"
 
     print("  [PASS] test_duration_match (all 6 trajectory types)")
 

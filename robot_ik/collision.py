@@ -11,10 +11,10 @@ Author: Danny Zeng
 License: MIT
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import List, Tuple, Optional, Literal
 from enum import Enum
+
+import numpy as np
 
 
 class GeometryType(Enum):
@@ -57,8 +57,8 @@ class CollisionResult:
 
     is_colliding: bool
     distance: float  # Minimum distance (negative if penetrating)
-    contact_point: Optional[np.ndarray]  # Contact point if colliding
-    pair: Tuple[str, str]  # Names of colliding pair
+    contact_point: np.ndarray | None  # Contact point if colliding
+    pair: tuple[str, str]  # Names of colliding pair
 
 
 def distance_point_to_sphere(point: np.ndarray, sphere: Sphere) -> float:
@@ -247,7 +247,7 @@ class CollisionChecker:
         self,
         link_transforms: dict[str, np.ndarray],
         ignore_adjacent: bool = True,
-    ) -> Optional[CollisionResult]:
+    ) -> CollisionResult | None:
         """Check for self-collision between robot links.
 
         Args:
@@ -289,7 +289,7 @@ class CollisionChecker:
     def check_environment_collision(
         self,
         link_transforms: dict[str, np.ndarray],
-    ) -> Optional[CollisionResult]:
+    ) -> CollisionResult | None:
         """Check for collision between robot and environment obstacles.
 
         Args:

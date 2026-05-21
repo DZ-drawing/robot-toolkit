@@ -1,16 +1,16 @@
 """Test suite for collision detection module."""
 
 import numpy as np
+
 from robot_ik.collision import (
-    Sphere,
-    Capsule,
     Box,
+    Capsule,
     CollisionChecker,
-    distance_sphere_to_sphere,
-    distance_sphere_to_capsule,
+    Sphere,
     distance_capsule_to_capsule,
     distance_sphere_to_box,
-    CollisionResult,
+    distance_sphere_to_capsule,
+    distance_sphere_to_sphere,
 )
 
 

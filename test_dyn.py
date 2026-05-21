@@ -1,10 +1,13 @@
 """Test suite for robot-dyn rigid body dynamics solver."""
 
-import sys, os, time
+import os
+import sys
+import time
 
 sys.path.insert(0, os.path.dirname(__file__))
 import numpy as np
-from robot_ik import RobotDynamicsModel, LinkInertia, DynamicsSolver, six_dof_articulated_dyn
+
+from robot_ik import DynamicsSolver, LinkInertia, RobotDynamicsModel, six_dof_articulated_dyn
 
 
 def test_pendulum_gravity():
@@ -111,7 +114,7 @@ def benchmark():
         solver.inverse_dynamics(q, qd, qdd)
         times.append(time.perf_counter() - start)
     t = np.array(times) * 1000
-    print(f"\n  Benchmark (500 runs):")
+    print("\n  Benchmark (500 runs):")
     print(f"    Avg:  {np.mean(t):.2f} ms")
     print(f"    P50:  {np.median(t):.2f} ms")
     print(f"    P95:  {np.percentile(t, 95):.2f} ms")

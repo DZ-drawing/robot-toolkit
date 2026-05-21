@@ -7,9 +7,10 @@ Author: Danny Zeng
 License: MIT
 """
 
-import numpy as np
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+
+import numpy as np
+
 from robot_ik.ik_solver import RobotModel
 
 
@@ -134,10 +135,10 @@ def joint_quintic_interpolation(
     q_start: np.ndarray,
     q_end: np.ndarray,
     duration: float,
-    v_start: Optional[np.ndarray] = None,
-    v_end: Optional[np.ndarray] = None,
-    a_start: Optional[np.ndarray] = None,
-    a_end: Optional[np.ndarray] = None,
+    v_start: np.ndarray | None = None,
+    v_end: np.ndarray | None = None,
+    a_start: np.ndarray | None = None,
+    a_end: np.ndarray | None = None,
     dt: float = 0.01,
 ) -> TrajectoryResult:
     """Quintic polynomial interpolation with position, velocity, acceleration boundaries.
@@ -545,10 +546,10 @@ def s_curve_profile(
         t_j = a_max[i] / j_max[i]
 
         # Distance during first jerk phase: d_j = 1/6 * j_max * t_j^3
-        d_j = (1.0 / 6.0) * j_max[i] * t_j**3
+        (1.0 / 6.0) * j_max[i] * t_j**3
 
         # Velocity and position at end of first jerk phase
-        v_j = 0.5 * j_max[i] * t_j**2  # Should equal a_max * t_j
+        0.5 * j_max[i] * t_j**2  # Should equal a_max * t_j
 
         # Acceleration phase distance
         # If we can reach v_max, then we have cruise phase
@@ -593,8 +594,8 @@ def s_curve_profile(
 
 
 def waypoint_trajectory(
-    waypoints: List[np.ndarray],
-    times: List[float],
+    waypoints: list[np.ndarray],
+    times: list[float],
     method: str = "quintic",
     blend_radius: float = 0.0,
     dt: float = 0.01,

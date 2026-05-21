@@ -1,9 +1,10 @@
 """Test path planning module."""
 
 import numpy as np
+
 from robot_ik import six_dof_articulated
-from robot_ik.path_planning import RRTStar, plan_path_rrt_star
 from robot_ik.collision import CollisionChecker, Sphere
+from robot_ik.path_planning import RRTStar, plan_path_rrt_star
 
 
 def test_rrt_star_basic():
@@ -113,7 +114,7 @@ def test_rrt_star_collision():
     if result.success:
         # Verify path is collision-free (sample check)
         for i in range(0, len(result.path), 10):
-            q = result.path[i]
+            result.path[i]
             transforms = {}
             for j in range(6):
                 transforms[f"link{j}"] = np.eye(4)  # Simplified

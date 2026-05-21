@@ -3,6 +3,13 @@
 C++ accelerated robotics toolkit with Python API.
 """
 
+from robot_ik.collision import (
+    Box,
+    Capsule,
+    CollisionChecker,
+    CollisionResult,
+    Sphere,
+)
 from robot_ik.ik_solver import (
     DHParam,
     RobotModel,
@@ -10,59 +17,47 @@ from robot_ik.ik_solver import (
     six_dof_articulated,
     spherical_wrist_6dof,
 )
-
+from robot_ik.path_planning import (
+    PathPlanningResult,
+    RRTStar,
+    plan_path_rrt_star,
+)
 from robot_ik.robot_dyn import (
+    DynamicsSolver,
     LinkInertia,
     RobotDynamicsModel,
-    DynamicsSolver,
     six_dof_articulated_dyn,
 )
-
-from robot_ik.urdf_parser import (
-    urdf_to_dynamics_model,
-    quick_urdf,
-)
-
 from robot_ik.trajectory import (
     TrajectoryResult,
-    joint_linear_interpolation,
-    joint_cubic_interpolation,
-    joint_quintic_interpolation,
     cartesian_straight_line,
-    trapezoidal_velocity_profile,
+    joint_cubic_interpolation,
+    joint_linear_interpolation,
+    joint_quintic_interpolation,
     s_curve_profile,
+    trapezoidal_velocity_profile,
     waypoint_trajectory,
 )
-
-from robot_ik.collision import (
-    Sphere,
-    Capsule,
-    Box,
-    CollisionChecker,
-    CollisionResult,
-)
-
-from robot_ik.path_planning import (
-    RRTStar,
-    PathPlanningResult,
-    plan_path_rrt_star,
+from robot_ik.urdf_parser import (
+    quick_urdf,
+    urdf_to_dynamics_model,
 )
 
 # Try to import C++ extensions (optional)
 try:
-    from robot_ik.ik_fast import forward_kinematics as _fk_cpp
-    from robot_ik.ik_fast import compute_jacobian as _jac_cpp
-    from robot_ik.ik_fast import ik_solve as _ik_cpp
+    import importlib.util as _iu
 
+    _iu.find_spec("robot_ik.ik_fast")  # noqa: F841
     HAS_IK_FAST = True
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     HAS_IK_FAST = False
 
 try:
-    from robot_ik.robot_dyn_fast import inverse_dynamics as _id_cpp
+    import importlib.util as _iu
 
+    _iu.find_spec("robot_ik.robot_dyn_fast")  # noqa: F841
     HAS_DYN_FAST = True
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     HAS_DYN_FAST = False
 
 

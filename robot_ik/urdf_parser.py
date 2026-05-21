@@ -5,13 +5,13 @@ with DH parameters and LinkInertia entries.
 """
 
 import xml.etree.ElementTree as ET
+
 import numpy as np
-import robot_ik  # for type hints
-from typing import Tuple, List, Dict, Optional
-from robot_ik.robot_dyn import RobotDynamicsModel, LinkInertia
+
+from robot_ik.robot_dyn import LinkInertia, RobotDynamicsModel
 
 
-def _parse_origin(elem) -> Tuple[np.ndarray, np.ndarray]:
+def _parse_origin(elem) -> tuple[np.ndarray, np.ndarray]:
     """Parse <origin xyz="..." rpy="..."/> element. Returns (pos, rpy)."""
     xyz = np.zeros(3)
     rpy = np.zeros(3)
@@ -38,7 +38,7 @@ def _rpy_to_rot(rpy):
     )
 
 
-def _parse_inertia(elem) -> Tuple[float, np.ndarray, np.ndarray]:
+def _parse_inertia(elem) -> tuple[float, np.ndarray, np.ndarray]:
     """Parse <inertial><mass/><inertia/></inertial>. Returns (mass, com, I_3x3)."""
     inertial = elem.find("inertial")
     if inertial is None:
@@ -51,7 +51,7 @@ def _parse_inertia(elem) -> Tuple[float, np.ndarray, np.ndarray]:
 
     com_xyz, _ = _parse_origin(inertial)
 
-    I = np.eye(3) * 0.001
+    inertia_matrix = np.eye(3) * 0.001
     ixx = inertial.find("inertia")
     if ixx is not None:
         ixx_val = float(ixx.attrib.get("ixx", "0.001"))
@@ -60,7 +60,7 @@ def _parse_inertia(elem) -> Tuple[float, np.ndarray, np.ndarray]:
         ixy_val = float(ixx.attrib.get("ixy", "0"))
         ixz_val = float(ixx.attrib.get("ixz", "0"))
         iyz_val = float(ixx.attrib.get("iyz", "0"))
-        I = np.array(
+        inertia_matrix = np.array(
             [
                 [ixx_val, ixy_val, ixz_val],
                 [ixy_val, iyy_val, iyz_val],
@@ -68,7 +68,7 @@ def _parse_inertia(elem) -> Tuple[float, np.ndarray, np.ndarray]:
             ]
         )
 
-    return mass_val, com_xyz, I
+    return mass_val, com_xyz, inertia_matrix
 
 
 def urdf_to_dynamics_model(urdf_path: str) -> RobotDynamicsModel:
@@ -87,8 +87,8 @@ def urdf_to_dynamics_model(urdf_path: str) -> RobotDynamicsModel:
     root = tree.getroot()
 
     # Index links and joints
-    links: Dict[str, dict] = {}
-    joints: Dict[str, dict] = {}
+    links: dict[str, dict] = {}
+    joints: dict[str, dict] = {}
 
     for link in root.findall("link"):
         name = link.attrib["name"]

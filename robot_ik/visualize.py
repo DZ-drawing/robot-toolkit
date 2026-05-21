@@ -1,8 +1,9 @@
 """3D visualization for the IK solver using matplotlib."""
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+
 from robot_ik.ik_solver import RobotModel
 
 

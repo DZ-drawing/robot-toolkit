@@ -7,11 +7,12 @@ Author: Danny Zeng
 License: MIT
 """
 
-import numpy as np
 import time
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
-from robot_ik.collision import CollisionChecker, Sphere, Capsule
+
+import numpy as np
+
+from robot_ik.collision import CollisionChecker
 
 
 @dataclass
@@ -79,7 +80,7 @@ class RRTStar:
         best_goal_idx = -1
         best_cost = np.inf
 
-        for iteration in range(self.max_iterations):
+        for _iteration in range(self.max_iterations):
             # Sample random configuration
             if np.random.random() < self.goal_sample_rate:
                 q_sample = goal.copy()
@@ -164,12 +165,12 @@ class RRTStar:
             size=self.dof,
         )
 
-    def _find_nearest(self, nodes: List[np.ndarray], q: np.ndarray) -> int:
+    def _find_nearest(self, nodes: list[np.ndarray], q: np.ndarray) -> int:
         """Find index of nearest node."""
         distances = [self._distance(node, q) for node in nodes]
         return int(np.argmin(distances))
 
-    def _find_nearby(self, nodes: List[np.ndarray], q: np.ndarray) -> List[int]:
+    def _find_nearby(self, nodes: list[np.ndarray], q: np.ndarray) -> list[int]:
         """Find indices of nearby nodes within rewiring radius."""
         n = len(nodes)
         radius = min(self.step_size * 3.0, 10.0 * np.sqrt(np.log(n) / n))
@@ -221,7 +222,7 @@ class RRTStar:
         return transforms
 
     def _reconstruct_path(
-        self, nodes: List[np.ndarray], parents: List[int], goal_idx: int
+        self, nodes: list[np.ndarray], parents: list[int], goal_idx: int
     ) -> np.ndarray:
         """Reconstruct path from goal to start."""
         path = [nodes[goal_idx]]

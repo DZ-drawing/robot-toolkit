@@ -8,9 +8,9 @@ Author: Danny Zeng
 License: MIT
 """
 
-import numpy as np
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+
+import numpy as np
 
 
 @dataclass
@@ -29,7 +29,7 @@ class RobotDynamicsModel:
     dh_a: np.ndarray  # link length (6,)
     dh_alpha: np.ndarray  # link twist (6,)
     dh_d: np.ndarray  # link offset (6,)
-    links: List[LinkInertia]  # one per link (6)
+    links: list[LinkInertia]  # one per link (6)
     gravity: np.ndarray  # gravity vector in base frame (3,), default [0,0,-9.81]
     joint_damping: np.ndarray  # viscous damping per joint (6,), default zeros
 
@@ -101,7 +101,7 @@ class DynamicsSolver:
             ]
         )
 
-    def forward_kinematics_all(self, q: np.ndarray) -> List[np.ndarray]:
+    def forward_kinematics_all(self, q: np.ndarray) -> list[np.ndarray]:
         """Compute all link transforms (base to each frame). Returns list of 4x4."""
         T = np.eye(4)
         Ts = [T.copy()]

@@ -3,6 +3,7 @@
 Tests are written FIRST, then code is implemented to pass them.
 """
 
+import threading
 import time
 
 import numpy as np
@@ -284,3 +285,72 @@ class TestHardwareHAL:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestSuggestionFixes:
+    """TDD: fix reviewer suggestions from pre-commit review."""
+
+    # S1: _num_joints should come from robot, not hardcoded
+    def test_num_joints_read_from_robot(self):
+        """set_robot should infer _num_joints from robot's dh_params, not stay at init value."""
+        vis = MeshcatVisualizer(port=8200)
+        robot = six_dof_articulated()
+        vis.set_robot(robot)
+        # Verify _num_joints was updated from robot, not left at default 6
+        assert vis._num_joints == len(robot.dh_params)
+
+    def test_num_joints_stored_on_robot_attribute(self):
+        """If robot has a 'dof' attr, prefer it over dh_params length."""
+        vis = MeshcatVisualizer(port=8201)
+        robot = six_dof_articulated()
+        # Monkey-patch a dof attribute to simulate a future robot class
+        robot.dof = 3  # different from dh_params length!
+        vis.set_robot(robot)
+        assert vis._num_joints == 3, f"Should use robot.dof (3), got {vis._num_joints}"
+
+    # S4: context manager for reliable cleanup
+    def test_context_manager_cleanup(self):
+        """with vis as v: should stop streaming on exit."""
+        vis = MeshcatVisualizer(port=8202)
+        robot = six_dof_articulated()
+        vis.set_robot(robot)
+        hw = SimulatedHardware(dof=6)
+
+        with vis:
+            vis.start_realtime_stream(hw, freq=30)
+            assert vis._streaming
+
+        # After exiting context, stream should be stopped
+        assert not vis._streaming
+
+    def test_context_manager_returns_self(self):
+        """with MeshcatVisualizer() as vis should return self."""
+        vis = MeshcatVisualizer(port=8203)
+        with vis as v:
+            assert v is vis
+
+    # S6: thread-safety lock on _streaming
+    def test_concurrent_start_does_not_double_start(self):
+        """Rapid concurrent start_realtime_stream calls should not double-start."""
+        vis = MeshcatVisualizer(port=8204)
+        robot = six_dof_articulated()
+        vis.set_robot(robot)
+        hw = SimulatedHardware(dof=6)
+
+        results = []
+        def try_start():
+            try:
+                vis.start_realtime_stream(hw, freq=30)
+                results.append(True)
+            except RuntimeError:
+                results.append(False)
+
+        threads = [threading.Thread(target=try_start) for _ in range(5)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Exactly one should succeed, rest should get RuntimeError
+        assert results.count(True) == 1, f"Expected 1 success, got {results.count(True)}"
+        vis.stop_realtime_stream()

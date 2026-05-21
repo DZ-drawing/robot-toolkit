@@ -39,7 +39,7 @@ jobs:
           CIBW_SKIP: "*-musllinux_* pp* *-win32 *-manylinux_i686"
           CIBW_ARCHS_LINUX: auto64
           CIBW_ARCHS_WINDOWS: auto64
-          CIBW_TEST_COMMAND: pytest {project}/test_ik.py {project}/test_dyn.py -v --no-header
+          CIBW_TEST_COMMAND: pytest {project}/tests/ -v --no-header
           CIBW_TEST_REQUIRES: pytest numpy
 
       - uses: actions/upload-artifact@v4
@@ -69,7 +69,7 @@ jobs:
           CIBW_SKIP: "*-musllinux_* pp*"
           CIBW_ARCHS_MACOS: arm64
           CIBW_BEFORE_BUILD_MACOS: pip install cmake
-          CIBW_TEST_COMMAND: "pytest {project}/test_ik.py {project}/test_dyn.py -v --no-header"
+          CIBW_TEST_COMMAND: "pytest {project}/tests/ -v --no-header"
           CIBW_TEST_REQUIRES: pytest numpy
           MACOSX_DEPLOYMENT_TARGET: "10.9"
 

@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from robot_ik.ik_solver import six_dof_articulated
+from robot_ik.ik import six_dof_articulated
 
 
 def test_linear_boundary_conditions():

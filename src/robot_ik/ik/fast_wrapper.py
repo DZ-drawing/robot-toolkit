@@ -27,7 +27,7 @@ class FastIKSolver:
     def forward_kinematics(self, q: np.ndarray) -> np.ndarray:
         if _has_fast:
             return _fk_cpp(self.dh, np.asarray(q, dtype=np.float64))
-        from robot_ik.ik_solver import DHParam, RobotModel
+        from robot_ik.ik.solver import DHParam, RobotModel
 
         robot = RobotModel([DHParam(*row) for row in self.dh])
         return robot.forward_kinematics(q)
@@ -35,7 +35,7 @@ class FastIKSolver:
     def compute_jacobian(self, q: np.ndarray) -> np.ndarray:
         if _has_fast:
             return _jac_cpp(self.dh, np.asarray(q, dtype=np.float64))
-        from robot_ik.ik_solver import DHParam, RobotModel
+        from robot_ik.ik.solver import DHParam, RobotModel
 
         robot = RobotModel([DHParam(*row) for row in self.dh])
         return robot.compute_jacobian(q)
@@ -63,7 +63,7 @@ class FastIKSolver:
                 orientation_tolerance,
                 damping,
             )
-        from robot_ik.ik_solver import DHParam, RobotModel
+        from robot_ik.ik.solver import DHParam, RobotModel
 
         robot = RobotModel(
             [DHParam(*row) for row in self.dh],

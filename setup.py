@@ -4,7 +4,7 @@ import os
 
 ext_ik = Extension(
     "robot_ik.ik_fast",
-    sources=["ik_fast.cpp"],
+    sources=["csrc/ik_fast.cpp"],
     include_dirs=[pybind11.get_include()],
     language="c++",
     extra_compile_args=["-O3"],
@@ -12,7 +12,7 @@ ext_ik = Extension(
 
 ext_dyn = Extension(
     "robot_ik.robot_dyn_fast",
-    sources=["robot_dyn_fast.cpp"],
+    sources=["csrc/robot_dyn_fast.cpp"],
     include_dirs=[pybind11.get_include()],
     language="c++",
     extra_compile_args=["-O3"],
@@ -24,7 +24,8 @@ setup(
     description="Fast 6-DOF Inverse Kinematics and Rigid Body Dynamics (C++ accelerated)",
     author="Danny Zeng",
     license="MIT",
-    packages=find_packages(),
+    packages=find_packages(where="src"),
+    package_dir={"robot_ik": "src/robot_ik"},
     python_requires=">=3.8",
     install_requires=["numpy>=1.24.0"],
     extras_require={

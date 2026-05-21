@@ -10,7 +10,13 @@ from robot_ik.collision import (
     CollisionResult,
     Sphere,
 )
-from robot_ik.ik_solver import (
+from robot_ik.dynamics import (
+    DynamicsSolver,
+    LinkInertia,
+    RobotDynamicsModel,
+    six_dof_articulated_dyn,
+)
+from robot_ik.ik import (
     DHParam,
     RobotModel,
     dh_transform,
@@ -22,12 +28,6 @@ from robot_ik.path_planning import (
     RRTStar,
     plan_path_rrt_star,
 )
-from robot_ik.robot_dyn import (
-    DynamicsSolver,
-    LinkInertia,
-    RobotDynamicsModel,
-    six_dof_articulated_dyn,
-)
 from robot_ik.trajectory import (
     TrajectoryResult,
     cartesian_straight_line,
@@ -38,7 +38,7 @@ from robot_ik.trajectory import (
     trapezoidal_velocity_profile,
     waypoint_trajectory,
 )
-from robot_ik.urdf_parser import (
+from robot_ik.urdf import (
     quick_urdf,
     urdf_to_dynamics_model,
 )
@@ -61,7 +61,7 @@ except (ImportError, ModuleNotFoundError):
     HAS_DYN_FAST = False
 
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     "DHParam",
     "RobotModel",

@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 
 from robot_ik import six_dof_articulated
-from robot_ik.hardware import HardwareRegistry, SimulatedHardware
-from robot_ik.visualize_meshcat import MeshcatVisualizer
+from robot_ik.hardware.hal import HardwareRegistry, SimulatedHardware
+from robot_ik.visualization.meshcat_viz import MeshcatVisualizer
 
 
 class TestMeshcatInitialization:

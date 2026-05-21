@@ -10,7 +10,6 @@ This module provides web-based 3D visualization using Meshcat, supporting:
 
 import logging
 import threading
-from typing import Any
 
 import numpy as np
 

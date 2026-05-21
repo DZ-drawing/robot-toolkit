@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from robot_ik.ik_solver import RobotModel
+from robot_ik.ik.solver import RobotModel
 
 
 @dataclass

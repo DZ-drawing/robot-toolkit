@@ -8,3 +8,4 @@ build/
 *.egg-info/
 build/
 .worktrees/
+dist/

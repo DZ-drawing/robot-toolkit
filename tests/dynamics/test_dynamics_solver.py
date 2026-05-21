@@ -1,10 +1,7 @@
 """Test suite for robot-dyn rigid body dynamics solver."""
 
-import os
-import sys
 import time
 
-sys.path.insert(0, os.path.dirname(__file__))
 import numpy as np
 
 from robot_ik import DynamicsSolver, LinkInertia, RobotDynamicsModel, six_dof_articulated_dyn

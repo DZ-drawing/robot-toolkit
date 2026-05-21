@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from robot_ik.robot_dyn import LinkInertia, RobotDynamicsModel
+from robot_ik.dynamics.solver import LinkInertia, RobotDynamicsModel
 
 
 def _parse_origin(elem) -> tuple[np.ndarray, np.ndarray]:
@@ -243,6 +243,6 @@ def urdf_to_dynamics_model(urdf_path: str) -> RobotDynamicsModel:
 
 def quick_urdf(urdf_path):
     # type: (...) -> DynamicsSolver
-    from robot_ik.robot_dyn import DynamicsSolver
+    from robot_ik.dynamics.solver import DynamicsSolver
 
     return DynamicsSolver(urdf_to_dynamics_model(urdf_path))

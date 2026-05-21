@@ -63,7 +63,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest test_ik.py test_dyn.py test_trajectory.py -v --cov=robot_ik --cov-report=xml --cov-report=term
+          pytest tests/ -v --cov=robot_ik --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.11'
@@ -91,12 +91,12 @@ jobs:
 
       - name: Check formatting with black
         run: |
-          black --check robot_ik/ test_*.py
+          black --check src/ tests/
 
       - name: Lint with ruff
         run: |
-          ruff check robot_ik/ test_*.py
+          ruff check src/ tests/
 
       - name: Type check with mypy
         run: |
-          mypy robot_ik/ --ignore-missing-imports || true
+          mypy src/ --ignore-missing-imports || true

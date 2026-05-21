@@ -1,11 +1,12 @@
 # robot-toolkit Roadmap
 
-Version: 0.2.0 | Last updated: 2026-05-12
+Version: 0.3.0 | Last updated: 2026-05-21
 
 ## Project Summary
 
-6-DOF serial manipulator toolkit: inverse kinematics, rigid body dynamics,
-URDF import, and C++ acceleration. Pure Python fallbacks for everything.
+6-DOF serial manipulator engineering toolbox: IK, rigid body dynamics, trajectory
+planning, collision detection, path planning, URDF import, and C++ acceleration.
+Design philosophy: independent, composable modules — like numpy/scipy for robotics.
 
 ---
 
@@ -85,6 +86,8 @@ URDF import, and C++ acceleration. Pure Python fallbacks for everything.
 ### Phase 12 — Examples & Tutorials (2026-05-12)
 - [x] Jupyter notebook: IK tutorial
 - [x] Example scripts for common tasks
+- [x] 4 tutorials from challenges (workspace analysis, collision detection,
+      coordinated trajectory, path planning)
 - [x] API documentation updates
 
 ### Phase 13 — License & Legal (2026-05-12)
@@ -103,179 +106,172 @@ URDF import, and C++ acceleration. Pure Python fallbacks for everything.
 - [x] PyPI API token configured in GitHub secrets
 - [x] Version bumped to 0.3.0
 - [x] CI workflow fixes (YAML syntax, CMAKE_ARGS, portable wheels)
-- [x] Ready for first public PyPI release
-- [ ] Monitor CI build status (queued as of 2026-05-14)
-- [ ] Publish to PyPI once CI passes
+
+### Phase A — Self-Hosted macOS Runner (2026-05-14)
+- [x] Mac mini environment configured (DZ-drawing org)
+- [x] Organization-level runner registered at 192.168.3.143
+- [x] GitHub Actions workflow updated for self-hosted macOS
+- [x] Runner tool cache configured (setup-python compatible)
+- [x] Passwordless sudo configured for CI jobs
+- [x] CI stabilized (cibuildwheel path fix, setuptools workaround, ruff lint sweep)
 
 ---
 
----
+## v0.3.0 Priorities
 
-## In Progress (Phase 15b - Tutorial Examples)
+Priority order decided 2026-05-14: **A (scope) -> D (tech debt) -> B (expand) -> C (release)**
 
-### Phase 15b — Tutorial Examples from Challenges (2026-05-14)
-**Goal**: Create 4 tutorial examples based on `docs/challenges.md`
+### D1 — Self-Hosted macOS Runner
+**Status: Done**
+- Mac mini runner operational, serving DZ-drawing org
+- Build times predictable (~20 min), no GitHub Actions queue delays
 
-**Status**: Planning complete, implementation pending
+### D2 — Meshcat Visualization
+**Status: In Progress (worktree: feature-meshcat)**
+- Design approved: `docs/plans/2026-05-14-phase-b-meshcat-design.md`
+- Web-based 3D viz, Jupyter native, 30-60 FPS
+- Threading-based real-time streaming for monitoring
+- Estimated: 2-3 days
 
-**Tutorials**:
-- [ ] Tutorial 1: Dual-arm workspace analysis (FK sampling, overlap calculation)
-- [ ] Tutorial 2: Self-collision detection (CollisionChecker, contact viz)
-- [ ] Tutorial 3: Coordinated trajectory planning (waypoint, time sync)
-- [ ] Tutorial 4: Collision-free path planning (RRT*, collision constraints)
+### A — Scope Completion
+**Status: 8/8 modules complete**
+All 8 modules (IK, dynamics, trajectory, collision, path planning, visualization,
+URDF, ROS2) are independently composable. Visualization flagged for meshcat upgrade.
 
-**Deliverables**:
-- [ ] Create `examples/tutorials/` directory
-- [ ] Implement 4 example scripts with docstrings
-- [ ] Create Jupyter notebooks for each tutorial
-- [ ] Update README with tutorial section
-- [ ] Add to documentation site
+### B — Expand: Hardware Abstraction Layer (HAL)
+**Status: Design complete, not started**
+- Design: `docs/plans/2026-05-14-scope-roadmap-review.md` (Section 3)
+- Protocol-agnostic: ROS2/Modbus/custom as optional extras
+- Unified `HardwareInterface` ABC with registry/factory pattern
+- Estimated: 3-5 days
 
-**Estimated effort**: 4-6 hours
+### C — Release
+**Status: Infrastructure ready**
+- CI stable across all platforms
+- PyPI token configured
+- Pending: actual publish + release notes
 
 ---
 
 ## Planned (Phase 16+)
 
 ### Phase 16 — Dual-Arm Coordination Framework
-**Goal**: Master-slave control and constraint-based programming
-
-**Features**:
 - [ ] MasterSlaveController class
 - [ ] ClosedChainConstraint for dual-arm object holding
 - [ ] Real-time communication between robot instances
 - [ ] Constraint-based trajectory optimization
-
-**Tutorials**:
 - [ ] Tutorial 5: Master-slave coordinated grasping
 - [ ] Tutorial 6: Closed-chain constraint control
-
-**Estimated effort**: 8-12 hours
 
 ### Phase 17 — Advanced Features
 - [ ] Force control (hybrid position-force, impedance)
 - [ ] Vision system integration (multi-camera calibration)
 - [ ] FCL/mesh-based collision detection
 - [ ] Simulation integration (PyBullet/MuJoCo)
-
-**Tutorials**:
 - [ ] Tutorial 7: Dual-arm assembly with force control
 - [ ] Tutorial 8: Vision-guided manipulation
 - [ ] Tutorial 9: Real-time mesh collision with FCL
 
-**Estimated effort**: 16-24 hours
+### Phase HAL — Hardware Abstraction Layer
+```
+robot-toolkit core (IK, Dynamics, Trajectory)
+  |
+HardwareInterface (ABC)
+  - get_joint_positions()
+  - set_joint_targets()
+  - get_joint_velocities()
+  - stop()
+  |
++----------+----------+----------+----------+
+|Simulated| ROS2     | Modbus   | Custom   |
+|(built-in)| (opt)   | (opt)    | (user)   |
++----------+----------+----------+----------+
+```
+- [ ] `hardware/base.py` — HardwareInterface ABC
+- [ ] `hardware/simulated.py` — built-in simulation
+- [ ] `hardware/registry.py` — protocol registry + factory
+- [ ] `hardware/ros2.py` — ROS2 implementation (optional)
+- [ ] `hardware/modbus.py` — Modbus implementation (optional)
+- [ ] pyproject.toml optional-dependencies: `[meshcat]`, `[ros2]`, `[modbus]`
+
+### Phase Meshcat — Visualization Upgrade
+- [ ] `visualize_meshcat.py` — MeshcatVisualizer class
+- [ ] Procedural 3D robot model generation (box/cylinder/sphere/triad)
+- [ ] `set_robot()`, `update_joints()` for FK-based display
+- [ ] Jupyter integration (`start_jupyter()` returns IFrame)
+- [ ] Real-time streaming (`start_realtime_stream()` via threading, 30Hz)
+- [ ] Unit + integration tests (TDD)
+- [ ] Jupyter notebook tutorial
+
+### Phase Viz-Future — Visualization Enhancements
+- [ ] Load real STL/OBJ meshes from URDF
+- [ ] WebSocket for remote monitoring
+- [ ] Multi-robot scene support
 
 ---
 
+## Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Scope | Keep all 8 modules | Engineering toolbox philosophy |
+| License | MIT | Maximum adoption, permissive integration |
+| CI macOS | Self-hosted runner | No queue delays, serves all org repos |
+| Visualization | Meshcat | Web-based + Jupyter + high performance |
+| Hardware protocols | Multi-protocol HAL | Robot ecosystem diversity, pluggable |
+| Dependencies | Optional extras | Users install only what they need |
+| Runner scope | Organization-level | One Mac mini serves all projects |
+
 ---
 
-## Project Stats (Final)
+## Current Module Status
+
+| Module | File | Status |
+|--------|------|--------|
+| IK Solver | `ik_solver.py` | Done |
+| Dynamics | `robot_dyn.py` | Done |
+| Trajectory | `trajectory.py` | Done |
+| Collision | (in ik_solver.py) | Done |
+| Path Planning | (in ik_solver.py) | Done |
+| Visualization | `visualize.py` | Done (matplotlib) |
+| URDF Parser | `urdf_parser.py` | Done |
+| ROS2 | `ros2/` | Done |
+| Meshcat Viz | `visualize_meshcat.py` | In Progress |
+| HAL | `hardware/` | Design Only |
+
+---
+
+## Project Stats
 
 | Metric | Value |
 |--------|-------|
 | Python LOC | ~4,500 |
 | C++ LOC | ~500 |
-| Total files | 38+ (source, tests, docs, LICENSE, workflows) |
 | Test cases | 60+ |
-| Modules | 8 (IK, dynamics, trajectory, collision, path planning, visualization, URDF, ROS2) |
+| Modules | 8 (+ 2 in progress) |
 | Version | 0.3.0 |
 | License | MIT |
-| Phases | 15/15 complete |
+
+---
+
+## Risk Register
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Mac mini maintenance | Medium | Automated update + monitoring scripts |
+| Meshcat perf bottleneck | Low | 30-60 FPS sufficient for needs |
+| HAL API breaking changes | High | Strict semver, deprecation warnings |
+| Multi-protocol maintenance | Medium | Plugin architecture, community contributions |
 
 ---
 
 ## Achievements
 
-✓ Complete 6-DOF manipulator control pipeline
-✓ 137x IK speedup with C++ extension
-✓ 358x dynamics speedup with C++ extension
-✓ Full CI/CD pipeline (GitHub Actions)
-✓ Collision-free path planning (RRT*)
-✓ ROS2 integration ready
-✓ TDD approach for new modules
-✓ Comprehensive documentation (10 docs)
-
----
-
-## Future Enhancements (Beyond v0.2.0)
-
-Potential areas for future development:
-
-### Gaps & Limitations
-
-**Real-time capabilities**
-- No rate limiting or timing validation
-- No real-time control framework
-- Visualization limited to matplotlib (slow for live updates)
-
-**Collision detection**
-- Primitive shapes only (sphere, capsule, box)
-- No mesh-based collision (FCL integration)
-- Limited support for complex geometries
-
-**Distribution**
-- No PyPI package (manual pip install from source)
-- No binary wheels for cross-platform installation
-- C++ extensions require compiler toolchain
-
-**Robot model variety**
-- Only 6-DOF articulated manipulator
-- No SCARA, delta, or parallel manipulators
-- Limited pre-built models
-
-**Motion planning**
-- Only RRT* implemented
-- No CHOMP, A*, or trajectory optimization
-- Limited support for constraints beyond collision
-
-### Enhancement Priorities
-
-**High priority (adoption blockers)**
-1. **PyPI distribution with binary wheels**
-   - Lowers adoption barrier significantly
-   - Cross-platform installation (Linux/macOS/Windows)
-   - Tools: cibuildwheel, GitHub Actions
-
-2. **Real-time visualization**
-   - Critical for debugging motion planning
-   - Options: meshcat, rerun, or web-based viz
-   - Live trajectory preview and collision checking
-
-3. **Rate limiting framework**
-   - Required for hardware deployment
-   - Timing validation and control loops
-   - Integration with ROS2 real-time constraints
-
-**Medium priority (feature expansion)**
-4. **FCL/mesh-based collision**
-   - Needed for complex robot geometries
-   - Import STL/OBJ meshes from URDF
-   - Integration: python-fcl or PyBullet
-
-5. **Additional motion planners**
-   - CHOMP for trajectory optimization
-   - A* for grid-based planning
-   - Task space constraints (IK constraints)
-
-6. **More robot models**
-   - SCARA (4-DOF selective compliance)
-   - Delta parallel manipulator
-   - 7-DOF redundant manipulator
-
-**Lower priority (nice to have)**
-7. **Force control**
-   - Hybrid position-force control
-   - Impedance control
-   - Force/torque sensor integration
-
-8. **Simulation integration**
-   - PyBullet, MuJoCo, or Gazebo
-   - Physics validation and benchmarking
-   - Sim-to-real transfer tools
-
-9. **Constraint-based programming**
-   - Task space constraints
-   - Multi-task prioritization
-   - Nullspace projection
-
----
+- Complete 6-DOF manipulator control pipeline
+- 137x IK speedup with C++ extension
+- 358x dynamics speedup with C++ extension
+- Full CI/CD (GitHub Actions + self-hosted macOS)
+- Collision-free path planning (RRT*)
+- ROS2 integration ready
+- TDD approach for all new modules
+- Comprehensive documentation (10+ docs)

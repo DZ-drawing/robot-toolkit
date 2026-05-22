@@ -4,7 +4,6 @@ Tests are written FIRST, then code is implemented to pass them.
 """
 
 import threading
-import time
 
 import numpy as np
 import pytest
@@ -185,7 +184,17 @@ class TestRealtimeStream:
         assert vis._streaming
         assert vis._stream_thread is not None
 
-        time.sleep(0.3)  # let it run a bit
+        # Wait for at least one update cycle via stop event timeout
+        updated = threading.Event()
+
+        original_update = vis.update_joints
+        def tracked_update(q):
+            updated.set()
+            original_update(q)
+        vis.update_joints = tracked_update
+
+        updated.wait(timeout=1.0)
+        assert updated.is_set(), "Stream should have called update_joints at least once"
 
         vis.stop_realtime_stream()
         assert not vis._streaming
@@ -219,8 +228,16 @@ class TestRealtimeStream:
         q_target = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
         hw.set_joint_targets(q_target)
 
+        updated = threading.Event()
+        original_update = vis.update_joints
+        def tracked_update(q):
+            updated.set()
+            original_update(q)
+        vis.update_joints = tracked_update
+
         vis.start_realtime_stream(hw, freq=30)
-        time.sleep(0.2)
+        updated.wait(timeout=1.0)
+        assert updated.is_set(), "Stream should have called update_joints"
         vis.stop_realtime_stream()
 
         # After streaming, last update should reflect hardware position

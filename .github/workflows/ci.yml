@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, windows-2022]
+        os: [ubuntu-22.04, windows-2022]
         python-version: ['3.10', '3.11', '3.12']
         exclude:
           # Skip some combinations to save CI time
@@ -72,6 +72,28 @@ jobs:
           file: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
+
+  test-macos:
+    runs-on: [self-hosted, macOS, ARM64]
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install numpy matplotlib pytest pytest-cov
+
+      - name: Install package
+        run: |
+          pip3 install -e .
+
+      - name: Run tests
+        run: |
+          python3 -m pytest tests/ -v --cov=robot_ik --cov-report=term
 
   lint:
     runs-on: ubuntu-22.04

@@ -48,14 +48,17 @@ class MeshcatVisualizer:
     # Exception classes
     class MeshcatError(Exception):
         """Base exception for Meshcat visualization errors"""
+
         pass
 
     class StreamingError(MeshcatError):
         """Real-time streaming error"""
+
         pass
 
     class InitializationError(MeshcatError):
         """Initialization error"""
+
         pass
 
     def __init__(self, port: int = DEFAULT_PORT, zmq_url: str | None = None):
@@ -89,8 +92,7 @@ class MeshcatVisualizer:
             logger.info(f"Meshcat visualizer initialized on port {port}")
         except ImportError:
             raise self.InitializationError(
-                "meshcat package not installed. "
-                "Install with: pip install robot-ik[meshcat]"
+                "meshcat package not installed. " "Install with: pip install robot-ik[meshcat]"
             ) from None
         except Exception as e:
             raise self.InitializationError(f"Meshcat initialization failed: {e}") from e
@@ -254,8 +256,7 @@ class MeshcatVisualizer:
 
             if not hasattr(hardware, "get_joint_positions"):
                 raise self.StreamingError(
-                    "Invalid hardware interface. "
-                    "Must have get_joint_positions() method."
+                    "Invalid hardware interface. " "Must have get_joint_positions() method."
                 )
 
             self._streaming = True
@@ -272,9 +273,7 @@ class MeshcatVisualizer:
 
                 self._stop_event.wait(1.0 / freq)
 
-        self._stream_thread = threading.Thread(
-            target=update_loop, daemon=True
-        )
+        self._stream_thread = threading.Thread(target=update_loop, daemon=True)
         self._stream_thread.start()
         logger.info(f"Real-time stream started at {freq} Hz")
 

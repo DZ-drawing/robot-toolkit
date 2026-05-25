@@ -9,8 +9,11 @@ import numpy as np
 import pytest
 
 from robot_ik import six_dof_articulated
-from robot_ik.hardware.hal import HardwareRegistry, SimulatedHardware
-from robot_ik.visualization.meshcat_viz import MeshcatVisualizer
+
+meshcat = pytest.importorskip("meshcat")  # noqa: E402
+
+from robot_ik.hardware.hal import HardwareRegistry, SimulatedHardware  # noqa: E402
+from robot_ik.visualization.meshcat_viz import MeshcatVisualizer  # noqa: E402
 
 
 class TestMeshcatInitialization:
@@ -51,8 +54,9 @@ class TestLinkTransformUsesRealFK:
         vis.update_joints(q)
 
         _, transforms = robot.forward_kinematics(q, return_all=True)
-        assert np.allclose(vis._last_link_transforms[0], transforms[1], atol=1e-10), \
-            f"Link 0 transform mismatch.\nGot:\n{vis._last_link_transforms[0]}\nExpected:\n{transforms[1]}"
+        assert np.allclose(
+            vis._last_link_transforms[0], transforms[1], atol=1e-10
+        ), f"Link 0 transform mismatch.\nGot:\n{vis._last_link_transforms[0]}\nExpected:\n{transforms[1]}"
 
     def test_link3_transform_matches_fk_at_random(self):
         """After update_joints at random q, stored link 3 transform should match FK."""
@@ -64,8 +68,9 @@ class TestLinkTransformUsesRealFK:
         vis.update_joints(q)
 
         _, transforms = robot.forward_kinematics(q, return_all=True)
-        assert np.allclose(vis._last_link_transforms[3], transforms[4], atol=1e-10), \
-            f"Link 3 transform mismatch.\nGot:\n{vis._last_link_transforms[3]}\nExpected:\n{transforms[4]}"
+        assert np.allclose(
+            vis._last_link_transforms[3], transforms[4], atol=1e-10
+        ), f"Link 3 transform mismatch.\nGot:\n{vis._last_link_transforms[3]}\nExpected:\n{transforms[4]}"
 
     def test_link0_at_pi2_is_not_hardcoded(self):
         """Link 0 at q=[pi/2, 0, ...] should produce non-trivial rotation (not identity)."""
@@ -84,13 +89,16 @@ class TestLinkTransformUsesRealFK:
         # Real FK with DH alpha=-pi/2 should produce non-trivial rotation.
         R = T_link0[:3, :3]
         # Check that the rotation is NOT a simple Rz(pi/2)
-        Rz_pi2 = np.array([
-            [np.cos(np.pi/2), -np.sin(np.pi/2), 0],
-            [np.sin(np.pi/2),  np.cos(np.pi/2), 0],
-            [0, 0, 1],
-        ])
-        assert not np.allclose(R, Rz_pi2, atol=1e-6), \
-            "Rotation looks like a simple Rz(pi/2) — might be hardcoded"
+        Rz_pi2 = np.array(
+            [
+                [np.cos(np.pi / 2), -np.sin(np.pi / 2), 0],
+                [np.sin(np.pi / 2), np.cos(np.pi / 2), 0],
+                [0, 0, 1],
+            ]
+        )
+        assert not np.allclose(
+            R, Rz_pi2, atol=1e-6
+        ), "Rotation looks like a simple Rz(pi/2) — might be hardcoded"
 
 
 class TestSetRobot:
@@ -167,8 +175,9 @@ class TestUpdateJoints:
         # Verify each link transform
         for i in range(6):
             link_transform = vis._last_link_transforms[i]
-            assert np.allclose(link_transform, transforms[i + 1], atol=1e-10), \
-                f"Link {i} transform mismatch"
+            assert np.allclose(
+                link_transform, transforms[i + 1], atol=1e-10
+            ), f"Link {i} transform mismatch"
 
 
 class TestRealtimeStream:
@@ -188,9 +197,11 @@ class TestRealtimeStream:
         updated = threading.Event()
 
         original_update = vis.update_joints
+
         def tracked_update(q):
             updated.set()
             original_update(q)
+
         vis.update_joints = tracked_update
 
         updated.wait(timeout=1.0)
@@ -230,9 +241,11 @@ class TestRealtimeStream:
 
         updated = threading.Event()
         original_update = vis.update_joints
+
         def tracked_update(q):
             updated.set()
             original_update(q)
+
         vis.update_joints = tracked_update
 
         vis.start_realtime_stream(hw, freq=30)
@@ -355,6 +368,7 @@ class TestSuggestionFixes:
         hw = SimulatedHardware(dof=6)
 
         results = []
+
         def try_start():
             try:
                 vis.start_realtime_stream(hw, freq=30)

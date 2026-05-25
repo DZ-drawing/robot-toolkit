@@ -1,11 +1,11 @@
 # robot-toolkit
 
-[![CI](https://github.com/dz3ai/robot-toolkit/workflows/CI/badge.svg)](https://github.com/dz3ai/robot-toolkit/actions)
-[![codecov](https://codecov.io/gh/dz3ai/robot-toolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/dz3ai/robot-toolkit)
+[![CI](https://github.com/DZ-drawing/robot-toolkit/workflows/CI/badge.svg)](https://github.com/DZ-drawing/robot-toolkit/actions)
+[![codecov](https://codecov.io/gh/DZ-drawing/robot-toolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/DZ-drawing/robot-toolkit)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Fast 6-DOF serial manipulator toolkit with IK, rigid body dynamics, and trajectory planning.
+Fast 6-DOF serial manipulator toolkit with IK, rigid body dynamics, trajectory planning, collision detection, RRT* path planning, and URDF parsing. C++ accelerated.
 
 **Key features:**
 - DH parameter forward kinematics
@@ -13,24 +13,20 @@ Fast 6-DOF serial manipulator toolkit with IK, rigid body dynamics, and trajecto
 - Geometric Jacobian computation
 - Rigid body dynamics (RNEA, CRBA)
 - Trajectory planning (linear, cubic, quintic, trapezoidal, S-curve, Cartesian, waypoints)
-- C++ extensions (137x faster IK, 358x faster dynamics)
+- Collision detection (sphere, box, capsule)
+- RRT* path planning
 - URDF parser
-- 3D visualization
+- 3D visualization (matplotlib + meshcat)
+- Hardware abstraction layer
+- C++ extensions (137x faster IK, 358x faster dynamics)
 
 ## Quick Start
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt  # For development
+pip install -e .
 
 # Run tests
-pytest test_ik.py test_dyn.py test_trajectory.py
-
-# Run specific test suites
-python test_ik.py
-python test_dyn.py
-python test_trajectory.py
+pytest tests/ -v
 ```
 
 ## Usage
@@ -87,24 +83,25 @@ my_robot = RobotModel([
 
 Benchmarked on 6-DOF articulated robot, 200 random target poses.
 
-## Architecture
+## Project Structure
 
 ```
-robot_ik/
-├── ik_solver.py        — Core: DH FK, Jacobian, DLS IK solver, robot models
-├── robot_dyn.py        — Rigid body dynamics: RNEA, CRBA, mass matrix
-├── trajectory.py       — Trajectory planning: interpolation, velocity profiles, waypoints
-├── urdf_parser.py      — URDF to dynamics model converter
-├── visualize.py        — 3D arm visualization, convergence plots
-└── __init__.py         — Package exports
+src/robot_ik/               # Source (src layout)
+├── __init__.py             # Backward-compat re-exports
+├── ik/                     # IK solver + C++ wrapper
+├── dynamics/               # Rigid body dynamics
+├── trajectory/             # Trajectory planning
+├── collision/              # Collision detection
+├── path_planning/          # RRT* path planning
+├── urdf/                   # URDF parsing
+├── visualization/          # matplotlib + meshcat
+└── hardware/               # Hardware abstraction layer
 
-test_ik.py              — 7 IK tests + benchmark suite
-test_dyn.py             — Dynamics tests
-test_trajectory.py      — 12 trajectory planning tests
+tests/                       # Tests by module (67 tests)
+csrc/                        # C++ extension sources
+docs/tutorial/               # 8 standalone tutorials
+examples/                    # Project demos
 ```
-
-
-
 
 ## C++ Extension (137x faster)
 
@@ -113,7 +110,7 @@ python setup.py build_ext --inplace
 ```
 
 ```python
-from ik_fast_wrapper import FastIKSolver
+from robot_ik.ik import FastIKSolver
 
 solver = FastIKSolver(dh_params, joint_limits)
 success, angles, iters, errors = solver.ik_solve(target_pose)

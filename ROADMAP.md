@@ -1,11 +1,12 @@
 # robot-toolkit Roadmap
 
-Version: 0.3.0 | Last updated: 2026-05-21
+Version: 0.3.0 | Last updated: 2026-05-27
 
 ## Project Summary
 
 6-DOF serial manipulator engineering toolbox: IK, rigid body dynamics, trajectory
-planning, collision detection, path planning, URDF import, and C++ acceleration.
+planning, collision detection, path planning, URDF import, visualization, hardware
+abstraction, and C++ acceleration.
 Design philosophy: independent, composable modules — like numpy/scipy for robotics.
 
 ---
@@ -107,72 +108,78 @@ Design philosophy: independent, composable modules — like numpy/scipy for robo
 - [x] Version bumped to 0.3.0
 - [x] CI workflow fixes (YAML syntax, CMAKE_ARGS, portable wheels)
 
-### Phase A — Self-Hosted macOS Runner (2026-05-14)
-- [x] Mac mini environment configured (DZ-drawing org)
-- [x] Organization-level runner registered at 192.168.3.143
-- [x] GitHub Actions workflow updated for self-hosted macOS
-- [x] Runner tool cache configured (setup-python compatible)
+### Phase A — Self-Hosted macOS Runner (2026-05-20)
+- [x] Mac mini M1 environment configured (user `danny` at 192.168.3.143)
+- [x] Organization-level runner registered for DZ-drawing
+- [x] GitHub Actions workflows use self-hosted macOS (ci.yml + build-wheels.yml)
+- [x] cibuildwheel bypasses pypa action, uses `pip install cibuildwheel` + `CIBW_PYTHON_SOURCE=system`
 - [x] Passwordless sudo configured for CI jobs
-- [x] CI stabilized (cibuildwheel path fix, setuptools workaround, ruff lint sweep)
+- [x] CI stabilized (setuptools install, ruff lint sweep, python3 -m cibuildwheel)
 
----
+### Phase B — Meshcat Visualization & Hardware HAL (2026-05-21)
+- [x] MeshcatVisualizer class (procedural 3D robot, set_robot, update_joints)
+- [x] Jupyter integration (start_jupyter returns IFrame)
+- [x] Real-time streaming via threading (30 Hz)
+- [x] HardwareInterface ABC + SimulatedHardware + HardwareRegistry
+- [x] Tests for meshcat visualization (skip when meshcat not installed)
+- [x] Tests for hardware HAL
 
-## v0.3.0 Priorities
+### Phase C — Code Quality & Structure (2026-05-21)
+- [x] Ruff lint sweep: 108 errors fixed (89 auto, 9 unsafe, 10 manual)
+- [x] Black formatting enforced
+- [x] Ruff config migrated to `[tool.ruff.lint]` (deprecation fix)
+- [x] Reviewer fixes: dynamic DOF support, context manager, thread safety
+- [x] Tutorials reorganized into `docs/tutorial/` (8 standalone guides T0-T7)
+- [x] Examples restructured as project demos (unfinished drafts)
 
-Priority order decided 2026-05-14: **A (scope) -> D (tech debt) -> B (expand) -> C (release)**
+### Phase D — Project Restructure to src layout (2026-05-21)
+- [x] Migrated to PEP 421 src layout: `src/robot_ik/` with 8 subpackages
+- [x] Subpackages: ik/, dynamics/, trajectory/, collision/, path_planning/,
+      urdf/, visualization/, hardware/
+- [x] C++ sources moved to `csrc/`
+- [x] Tests reorganized into `tests/` by module
+- [x] All cross-module imports updated
+- [x] Backward-compat `__init__.py` re-exports preserved
+- [x] CI workflows updated (test paths, lint paths, cov paths)
+- [x] pyproject.toml `[tool.setuptools.packages.find] where = ["src"]`
 
-### D1 — Self-Hosted macOS Runner
-**Status: Done**
-- Mac mini runner operational, serving DZ-drawing org
-- Build times predictable (~20 min), no GitHub Actions queue delays
-
-### D2 — Meshcat Visualization
-**Status: In Progress (worktree: feature-meshcat)**
-- Design approved: `docs/plans/2026-05-14-phase-b-meshcat-design.md`
-- Web-based 3D viz, Jupyter native, 30-60 FPS
-- Threading-based real-time streaming for monitoring
-- Estimated: 2-3 days
-
-### A — Scope Completion
-**Status: 8/8 modules complete**
-All 8 modules (IK, dynamics, trajectory, collision, path planning, visualization,
-URDF, ROS2) are independently composable. Visualization flagged for meshcat upgrade.
-
-### B — Expand: Hardware Abstraction Layer (HAL)
-**Status: Design complete, not started**
-- Design: `docs/plans/2026-05-14-scope-roadmap-review.md` (Section 3)
-- Protocol-agnostic: ROS2/Modbus/custom as optional extras
-- Unified `HardwareInterface` ABC with registry/factory pattern
-- Estimated: 3-5 days
-
-### C — Release
-**Status: Infrastructure ready**
-- CI stable across all platforms
-- PyPI token configured
-- Pending: actual publish + release notes
+### Phase E — CI Fixes & README (2026-05-25)
+- [x] Black reformat on meshcat_viz.py + test_meshcat.py
+- [x] pytest.importorskip("meshcat") for CI (meshcat not installed)
+- [x] CI macOS job switched from macos-13 (24h timeout) to self-hosted runner
+- [x] README updated: badge URLs, src layout structure, features list
 
 ---
 
 ## Planned (Phase 16+)
+
+### PyPI Readiness (from review 2026-05-27)
+
+Plan: `docs/plans/pypi-readiness.md`
+
+| # | Item | Priority |
+|---|------|----------|
+| P1 | Add `[meshcat]` optional extra to pyproject.toml | Must fix |
+| P2 | Add `readme = "README.md"` field | Must fix |
+| P3 | Fix `requires-python` >=3.8 -> >=3.10 | Must fix |
+| P4 | Expand classifiers (Python versions, robotics) | Must fix |
+| P5 | Consolidate setup.py (trim to ext-modules only) | Must fix |
+| P6 | Add trusted publisher to build-wheels.yml | Must fix |
+| P7 | Actual first publish to PyPI | Must do |
 
 ### Phase 16 — Dual-Arm Coordination Framework
 - [ ] MasterSlaveController class
 - [ ] ClosedChainConstraint for dual-arm object holding
 - [ ] Real-time communication between robot instances
 - [ ] Constraint-based trajectory optimization
-- [ ] Tutorial 5: Master-slave coordinated grasping
-- [ ] Tutorial 6: Closed-chain constraint control
 
 ### Phase 17 — Advanced Features
 - [ ] Force control (hybrid position-force, impedance)
 - [ ] Vision system integration (multi-camera calibration)
 - [ ] FCL/mesh-based collision detection
 - [ ] Simulation integration (PyBullet/MuJoCo)
-- [ ] Tutorial 7: Dual-arm assembly with force control
-- [ ] Tutorial 8: Vision-guided manipulation
-- [ ] Tutorial 9: Real-time mesh collision with FCL
 
-### Phase HAL — Hardware Abstraction Layer
+### Phase HAL — Hardware Abstraction Layer (expand)
 ```
 robot-toolkit core (IK, Dynamics, Trajectory)
   |
@@ -184,24 +191,13 @@ HardwareInterface (ABC)
   |
 +----------+----------+----------+----------+
 |Simulated| ROS2     | Modbus   | Custom   |
-|(built-in)| (opt)   | (opt)    | (user)   |
+|(done)   | (opt)   | (opt)    | (user)   |
 +----------+----------+----------+----------+
 ```
-- [ ] `hardware/base.py` — HardwareInterface ABC
-- [ ] `hardware/simulated.py` — built-in simulation
-- [ ] `hardware/registry.py` — protocol registry + factory
+- [x] `hardware/` base ABC + SimulatedHardware + Registry (Phase B)
 - [ ] `hardware/ros2.py` — ROS2 implementation (optional)
 - [ ] `hardware/modbus.py` — Modbus implementation (optional)
-- [ ] pyproject.toml optional-dependencies: `[meshcat]`, `[ros2]`, `[modbus]`
-
-### Phase Meshcat — Visualization Upgrade
-- [ ] `visualize_meshcat.py` — MeshcatVisualizer class
-- [ ] Procedural 3D robot model generation (box/cylinder/sphere/triad)
-- [ ] `set_robot()`, `update_joints()` for FK-based display
-- [ ] Jupyter integration (`start_jupyter()` returns IFrame)
-- [ ] Real-time streaming (`start_realtime_stream()` via threading, 30Hz)
-- [ ] Unit + integration tests (TDD)
-- [ ] Jupyter notebook tutorial
+- [ ] pyproject.toml optional-dependencies: `[ros2]`, `[modbus]`
 
 ### Phase Viz-Future — Visualization Enhancements
 - [ ] Load real STL/OBJ meshes from URDF
@@ -221,23 +217,27 @@ HardwareInterface (ABC)
 | Hardware protocols | Multi-protocol HAL | Robot ecosystem diversity, pluggable |
 | Dependencies | Optional extras | Users install only what they need |
 | Runner scope | Organization-level | One Mac mini serves all projects |
+| Layout | src layout with subpackages | PEP 421, clean namespace, editable installs |
+| CI macOS builds | Bypass pypa/cibuildwheel action | setup-python incompatible with self-hosted runner |
+| Meshcat tests | pytest.importorskip | Skip gracefully when meshcat not installed in CI |
 
 ---
 
 ## Current Module Status
 
-| Module | File | Status |
+| Module | Path | Status |
 |--------|------|--------|
-| IK Solver | `ik_solver.py` | Done |
-| Dynamics | `robot_dyn.py` | Done |
-| Trajectory | `trajectory.py` | Done |
-| Collision | (in ik_solver.py) | Done |
-| Path Planning | (in ik_solver.py) | Done |
-| Visualization | `visualize.py` | Done (matplotlib) |
-| URDF Parser | `urdf_parser.py` | Done |
-| ROS2 | `ros2/` | Done |
-| Meshcat Viz | `visualize_meshcat.py` | In Progress |
-| HAL | `hardware/` | Design Only |
+| IK Solver | `src/robot_ik/ik/` | Done |
+| Dynamics | `src/robot_ik/dynamics/` | Done |
+| Trajectory | `src/robot_ik/trajectory/` | Done |
+| Collision | `src/robot_ik/collision/` | Done |
+| Path Planning | `src/robot_ik/path_planning/` | Done |
+| URDF Parser | `src/robot_ik/urdf/` | Done |
+| Visualization (matplotlib) | `src/robot_ik/visualization/` | Done |
+| Visualization (meshcat) | `src/robot_ik/visualization/` | Done (Phase B) |
+| Hardware HAL | `src/robot_ik/hardware/` | Done (base + simulated) |
+| ROS2 | `ros2/` | Done (Phase 11) |
+| C++ Extensions | `csrc/` | Done (ik_fast, dynamics_fast) |
 
 ---
 
@@ -245,12 +245,14 @@ HardwareInterface (ABC)
 
 | Metric | Value |
 |--------|-------|
-| Python LOC | ~4,500 |
-| C++ LOC | ~500 |
-| Test cases | 60+ |
-| Modules | 8 (+ 2 in progress) |
+| Python source LOC | 2,991 (19 files) |
+| C++ source LOC | 666 (2 files) |
+| Test LOC | 1,483 (7 files) |
+| Test cases | 67 |
+| Subpackages | 8 |
 | Version | 0.3.0 |
 | License | MIT |
+| Org | DZ-drawing |
 
 ---
 
@@ -273,5 +275,9 @@ HardwareInterface (ABC)
 - Full CI/CD (GitHub Actions + self-hosted macOS)
 - Collision-free path planning (RRT*)
 - ROS2 integration ready
+- Meshcat web-based 3D visualization
+- Hardware abstraction layer with registry pattern
+- src layout with 8 composable subpackages
+- 67 tests, ruff + black clean
 - TDD approach for all new modules
-- Comprehensive documentation (10+ docs)
+- 8 standalone tutorials in docs/tutorial/

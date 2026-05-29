@@ -43,7 +43,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
-    {name = "Danny Zeng", email = "danny@zeng.ai"}
+    {name = "Danny Zeng", email = "dz3ai@outlook.com"}
 ]
 keywords = ["robotics", "inverse kinematics", "dynamics", "manipulator", "6-DOF"]
 classifiers = [

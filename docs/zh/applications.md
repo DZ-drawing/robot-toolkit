@@ -1,4 +1,4 @@
-[English](applications.md) | [中文](zh/applications.md)
+[English](../applications.md) | [中文](applications.md)
 
 # 机器人研发与应用场景
 

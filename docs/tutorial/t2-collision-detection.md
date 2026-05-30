@@ -1,3 +1,4 @@
+[English](t2-collision-detection.md) | [中文](../zh/tutorial/t2-collision-detection.md)
 # Tutorial 2: Self-Collision Detection
 
 **Objective**: Detect collisions between a robot's own links and between the

@@ -1,3 +1,4 @@
+[English](t7-cartesian-path-collision.md) | [中文](../zh/tutorial/t7-cartesian-path-collision.md)
 # T7: Cartesian Straight-Line Path with Collision Checking
 
 **Difficulty:** Advanced | **Time:** 30 min | **Modules:** `robot_ik.trajectory`, `robot_ik.collision`

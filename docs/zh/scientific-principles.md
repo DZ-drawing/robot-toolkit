@@ -1,4 +1,4 @@
-[English](scientific-principles.md) | [中文](zh/scientific-principles.md)
+[English](../scientific-principles.md) | [中文](scientific-principles.md)
 
 # 科学原理
 

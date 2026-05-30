@@ -1,3 +1,5 @@
+[English](benchmark.md) | [中文](zh/benchmark.md)
+
 # Performance Benchmarks
 
 Benchmark results for robot-toolkit modules (IK, Dynamics, Trajectory Planning).

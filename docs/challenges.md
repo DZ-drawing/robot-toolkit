@@ -1,3 +1,5 @@
+[English](challenges.md) | [中文](zh/challenges.md)
+
 # How Many DOF to Match Human Hand & Arm Capability
 ## 1. Human Arm + Hand Total DOF Breakdown
 ### Arm (Shoulder → Wrist, equivalent to robotic manipulator)

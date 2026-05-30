@@ -1,3 +1,4 @@
+[English](t5-dynamics.md) | [中文](../zh/tutorial/t5-dynamics.md)
 # T5: Robot Dynamics — Inverse Dynamics, Gravity Compensation, and Inertia Analysis
 
 **Difficulty:** Intermediate | **Time:** 25 min | **Module:** `robot_ik.robot_dyn`

@@ -1,3 +1,5 @@
+[English](README.md) | [中文](../docs/zh/examples/README.md)
+
 # Examples
 
 Robotics project ideas and demos built with robot-toolkit. Each example demonstrates a real-world use case.

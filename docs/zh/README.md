@@ -1,4 +1,4 @@
-[English](README.md) | [中文](zh/README.md)
+[English](../README.md) | [中文](README.md)
 
 # robot-toolkit 文档索引
 
@@ -6,24 +6,24 @@
 
 | 文档 | 内容 |
 |------|------|
-| [README.md](../README.md) | 快速入门、安装、使用示例 |
-| [ROADMAP.md](../ROADMAP.md) | 开发路线图 (已完成 + 计划) |
+| [README.md](../../README.md) | 快速入门、安装、使用示例 |
+| [ROADMAP.md](../../ROADMAP.md) | 开发路线图 (已完成 + 计划) |
 
 ## 设计与原理
 
 | 文档 | 内容 |
 |------|------|
-| [设计哲学](design-philosophy.md) | 核心设计原则、数据约定、错误处理策略 |
+| [设计哲学](../design-philosophy.md) | 核心设计原则、数据约定、错误处理策略 |
 | [架构与部件说明](architecture.md) | 各模块的详细 API 说明、数据结构、算法实现 |
-| [科学原理](scientific-principles.md) | DH 参数、运动学、动力学、RNEA 等数学基础 |
+| [科学原理](../scientific-principles.md) | DH 参数、运动学、动力学、RNEA 等数学基础 |
 
 ## 开发
 
 | 文档 | 内容 |
 |------|------|
-| [构建与测试指南](build-and-test.md) | 安装方式、测试套件、测试方法论、构建打包 |
+| [构建与测试指南](../build-and-test.md) | 安装方式、测试套件、测试方法论、构建打包 |
 | [应用场景](applications.md) | 研发阶段应用、工业/协作机器人场景、典型工作流 |
-| [参与开源开发](contributing.md) | 代码风格、开发流程、PR 指南、性能优化 |
+| [参与开源开发](../contributing.md) | 代码风格、开发流程、PR 指南、性能优化 |
 
 ## API 快速参考
 

@@ -1,4 +1,4 @@
-[English](build-and-test.md) | [中文](zh/build-and-test.md)
+[English](../build-and-test.md) | [中文](build-and-test.md)
 
 # 构建与测试指南
 

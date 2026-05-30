@@ -1,9 +1,11 @@
 # robot-toolkit
 
 [![CI](https://github.com/DZ-drawing/robot-toolkit/workflows/CI/badge.svg)](https://github.com/DZ-drawing/robot-toolkit/actions)
-[![codecov](https://codecov.io/gh/DZ-drawing/robot-toolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/DZ-drawing/robot-toolkit)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+|[![codecov](https://codecov.io/gh/DZ-drawing/robot-toolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/DZ-drawing/robot-toolkit)
+|[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+|[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+[English](README.md) | [中文](docs/zh/README.md)
 
 Fast 6-DOF serial manipulator toolkit with IK, rigid body dynamics, trajectory planning, collision detection, RRT* path planning, and URDF parsing. C++ accelerated.
 

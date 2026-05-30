@@ -1,3 +1,4 @@
+[English](t3-trajectory-planning.md) | [中文](../zh/tutorial/t3-trajectory-planning.md)
 # Tutorial 3: Coordinated Dual-Arm Trajectory Planning
 
 **Objective**: Generate time-synchronized trajectories for two arms moving a

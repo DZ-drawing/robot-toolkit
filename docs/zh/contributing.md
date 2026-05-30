@@ -1,4 +1,4 @@
-[English](contributing.md) | [中文](zh/contributing.md)
+[English](../contributing.md) | [中文](contributing.md)
 
 # 参与开源开发
 

@@ -1,3 +1,5 @@
+[English](tutorial-examples.md) | [中文](zh/tutorial-examples.md)
+
 # Tutorial Index
 
 All tutorials have been moved to the [`docs/tutorial/`](./tutorial/) directory with individual files for each topic.

@@ -1,4 +1,4 @@
-[English](design-philosophy.md) | [中文](zh/design-philosophy.md)
+[English](../design-philosophy.md) | [中文](design-philosophy.md)
 
 # robot-toolkit 设计哲学
 

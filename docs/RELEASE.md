@@ -1,3 +1,5 @@
+[English](RELEASE.md) | [中文](zh/RELEASE.md)
+
 # PyPI Release Guide
 
 ## Local Testing

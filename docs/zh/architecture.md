@@ -1,4 +1,4 @@
-[English](architecture.md) | [中文](zh/architecture.md)
+[English](../architecture.md) | [中文](architecture.md)
 
 # robot-toolkit 架构与部件说明
 

@@ -58,14 +58,13 @@ jobs:
 
       - name: Install build tools and cibuildwheel
         run: |
-          brew install cmake python@3.10 python@3.11 python@3.12 || true
           python3 -m pip install cibuildwheel
 
       - name: Build wheels
         run: python3 -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_PYTHON_SOURCE: "system"
-          CIBW_BUILD: cp310-* cp311-* cp312-*
+          CIBW_BUILD: cp312-macosx_arm64
           CIBW_SKIP: "*-musllinux_* pp*"
           CIBW_ARCHS_MACOS: arm64
           CIBW_BEFORE_BUILD_MACOS: pip install cmake

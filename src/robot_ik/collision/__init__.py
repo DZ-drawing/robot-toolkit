@@ -13,6 +13,7 @@ from robot_ik.collision.module import (
     distance_sphere_to_capsule,
     distance_sphere_to_sphere,
 )
+from robot_ik.collision.mesh import TriangleMesh
 
 __all__ = [
     "Box",
@@ -21,6 +22,7 @@ __all__ = [
     "CollisionResult",
     "GeometryType",
     "Sphere",
+    "TriangleMesh",
     "distance_box_to_box",
     "distance_capsule_to_capsule",
     "distance_point_to_box",

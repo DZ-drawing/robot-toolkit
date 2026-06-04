@@ -7,6 +7,11 @@ Simple geometry-based collision detection using primitive shapes:
 
 Uses efficient distance computations and bounding volume hierarchies.
 
+Supports three-tier collision dispatch:
+- Tier 1 (fast path): primitive-primitive — analytical formulas
+- Tier 2 (mesh): any collision involving TriangleMesh — GJK/EPA
+- Tier 3 (unified): CollisionChecker auto-dispatches based on geometry types
+
 Author: Danny Zeng
 License: MIT
 """
@@ -32,6 +37,13 @@ class Sphere:
     radius: float = 0.05
     pose: np.ndarray = field(default_factory=lambda: np.eye(4))
 
+    def to_mesh(self, subdivisions: int = 1):
+        """Convert to TriangleMesh for GJK/EPA collision."""
+        from robot_ik.collision.mesh import TriangleMesh
+        mesh = TriangleMesh.from_sphere(self.radius, subdivisions=subdivisions)
+        mesh.pose = self.pose.copy()
+        return mesh
+
 
 @dataclass
 class Capsule:
@@ -42,6 +54,15 @@ class Capsule:
     radius: float = 0.04
     pose: np.ndarray = field(default_factory=lambda: np.eye(4))
 
+    def to_mesh(self, subdivisions: int = 6):
+        """Convert to TriangleMesh for GJK/EPA collision."""
+        from robot_ik.collision.mesh import TriangleMesh
+        mesh = TriangleMesh.from_capsule(
+            self.p1, self.p2, self.radius, subdivisions=subdivisions,
+        )
+        mesh.pose = self.pose.copy()
+        return mesh
+
 
 @dataclass
 class Box:
@@ -49,6 +70,13 @@ class Box:
 
     size: np.ndarray = field(default_factory=lambda: np.array([0.1, 0.1, 0.1]))
     pose: np.ndarray = field(default_factory=lambda: np.eye(4))
+
+    def to_mesh(self):
+        """Convert to TriangleMesh for GJK/EPA collision."""
+        from robot_ik.collision.mesh import TriangleMesh
+        mesh = TriangleMesh.from_box(self.size)
+        mesh.pose = self.pose.copy()
+        return mesh
 
 
 @dataclass
@@ -323,7 +351,30 @@ class CollisionChecker:
         g2,
         collision_threshold: float = 0.0,
     ) -> CollisionResult:
-        """Check collision between two geometries."""
+        """Check collision between two geometries with three-tier dispatch.
+
+        Tier 1: primitive-primitive (fast analytical path)
+        Tier 2: any mesh involvement → GJK/EPA
+        """
+        from robot_ik.collision.mesh import TriangleMesh
+
+        is_mesh1 = isinstance(g1, TriangleMesh)
+        is_mesh2 = isinstance(g2, TriangleMesh)
+
+        if is_mesh1 or is_mesh2:
+            # Tier 2: any collision involving TriangleMesh → GJK/EPA
+            return self._check_pair_mesh(g1, g2)
+
+        # Tier 1: primitive-primitive → existing analytical fast path
+        return self._check_pair_primitive(g1, g2, collision_threshold)
+
+    def _check_pair_primitive(
+        self,
+        g1,
+        g2,
+        collision_threshold: float = 0.0,
+    ) -> CollisionResult:
+        """Tier 1: Analytical collision between primitive geometries."""
         # Compute distance based on geometry types
         if isinstance(g1, Sphere) and isinstance(g2, Sphere):
             dist = distance_sphere_to_sphere(g1, g2)
@@ -354,5 +405,38 @@ class CollisionChecker:
             is_colliding=is_colliding,
             distance=dist,
             contact_point=contact_point,
+            pair=("", ""),
+        )
+
+    def _check_pair_mesh(self, g1, g2) -> CollisionResult:
+        """Tier 2: GJK/EPA collision for any pair involving TriangleMesh.
+
+        If one geometry is a primitive, it is converted to TriangleMesh first,
+        then GJK is used for intersection/distance and EPA for penetration info.
+        """
+        from robot_ik.collision.gjk import gjk_intersect, gjk_distance
+        from robot_ik.collision.epa import epa_penetration
+        from robot_ik.collision.mesh import TriangleMesh
+
+        # Convert primitives to mesh if needed
+        if not isinstance(g1, TriangleMesh):
+            g1 = g1.to_mesh()
+        if not isinstance(g2, TriangleMesh):
+            g2 = g2.to_mesh()
+
+        if gjk_intersect(g1, g2):
+            depth, normal, contact = epa_penetration(g1, g2)
+            return CollisionResult(
+                is_colliding=True,
+                distance=-depth,
+                contact_point=contact,
+                pair=("", ""),
+            )
+
+        dist, _, _ = gjk_distance(g1, g2)
+        return CollisionResult(
+            is_colliding=False,
+            distance=dist,
+            contact_point=None,
             pair=("", ""),
         )

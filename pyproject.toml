@@ -66,8 +66,9 @@ dependencies = [
 [project.optional-dependencies]
 viz = ["matplotlib>=3.7.0"]
 meshcat = ["meshcat>=0.3.0"]
+collision = ["scipy>=1.10"]
 dev = ["pytest>=7.0", "pytest-cov", "black", "ruff", "mypy"]
-all = ["robot-ik[viz,meshcat]"]
+all = ["robot-ik[viz,meshcat,collision]"]
 
 [project.urls]
 Homepage = "https://github.com/DZ-drawing/robot-toolkit"

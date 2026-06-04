@@ -2,11 +2,22 @@
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
-**Goal:** Replace simple primitive collision detection with GJK + EPA algorithms supporting triangle mesh collision bodies, providing accurate distance queries, penetration depth, and contact information.
+**Goal:** Add GJK + EPA mesh-mesh collision alongside existing primitive collision, with fast-path primitives for high-frequency scenarios (RRT* path planning) and accurate mesh collision for complex geometry.
 
-**Architecture:** Add `mesh.py` (TriangleMesh, convex hull) and `gjk.py`/`epa.py` (GJK/EPA algorithms) to `collision/`. `CollisionChecker` keeps its API but internally uses GJK/EPA for mesh-mesh checks. Pure NumPy, no new dependencies.
+**Architecture:** Three-tier collision system in `collision/`:
+- **Tier 1 (fast path):** Existing Sphere/Capsule/Box analytical formulas — unchanged, used by RRT* and high-frequency checks. O(1) per pair.
+- **Tier 2 (mesh path):** TriangleMesh + GJK distance query + EPA penetration — used for complex STL/OBJ geometry.
+- **Tier 3 (unified API):** CollisionChecker dispatches to Tier 1 when both shapes are primitives, Tier 2 when either is a TriangleMesh. Primitives also serve as convenience constructors to build TriangleMesh via `.to_mesh()`.
+
+Primitives are NOT replaced — they remain as the performance-critical fast path. TriangleMesh is additive.
 
 **Tech Stack:** NumPy (existing), scipy.spatial.ConvexHull for mesh convex hull generation
+
+**Performance targets:**
+- Primitive-Primitive: < 1μs per pair (existing, unchanged)
+- Primitive-Mesh: < 100μs per pair (GJK with vertex support)
+- Mesh-Mesh: < 500μs per pair (GJK + EPA)
+- Benchmark test included in Task 5
 
 ---
 
@@ -895,134 +906,198 @@ git commit -m "feat(collision): implement EPA for penetration depth and contact 
 
 ---
 
-### Task 4: Integrate GJK/EPA into CollisionChecker
+### Task 4: Integrate GJK/EPA into CollisionChecker (three-tier dispatch)
 
-**Objective:** Update CollisionChecker to use GJK/EPA internally while keeping the same public API.
+**Objective:** Update CollisionChecker with three-tier dispatch: primitive-primitive uses existing fast path, any-mesh uses GJK/EPA.
 
 **Files:**
 - Modify: `src/robot_ik/collision/module.py`
-- Test: `tests/collision/test_collision.py` (extend existing)
+- Modify: `src/robot_ik/collision/mesh.py` (add `.to_mesh()` to primitives)
+- Test: `tests/collision/test_collision_integration.py` (new file)
 
-**Step 1: Write integration test**
+**Step 1: Add `.to_mesh()` to Sphere, Capsule, Box**
 
 ```python
-def test_gjk_based_self_collision():
-    """Self-collision using GJK mesh-based detection."""
-    checker = CollisionChecker()
-    
-    link1 = TriangleMesh.from_sphere(0.05, subdivisions=1)
-    link1.name = "link1"
-    checker.add_link_geometry("link1", link1)
-    
-    link3 = TriangleMesh.from_sphere(0.05, subdivisions=1)
-    link3.name = "link3"
-    checker.add_link_geometry("link3", link3)
-    
-    # Overlapping
-    transforms = {"link1": np.eye(4), "link3": np.eye(4)}
-    result = checker.check_self_collision(transforms, ignore_adjacent=True)
-    assert result is not None
-    assert result.is_colliding
+# In mesh.py — add to TriangleMesh class or as module-level functions
+def sphere_to_mesh(sphere: Sphere, subdivisions: int = 2) -> TriangleMesh:
+    mesh = TriangleMesh.from_sphere(sphere.radius, subdivisions)
+    mesh.update_pose(sphere.pose)
+    return mesh
 
-def test_gjk_based_env_collision():
-    """Environment collision using mesh-based detection."""
-    checker = CollisionChecker()
-    
-    link = TriangleMesh.from_sphere(0.05, subdivisions=1)
-    checker.add_link_geometry("link1", link)
-    
-    obstacle = TriangleMesh.from_box(np.array([0.1, 0.1, 0.1]))
-    pose = np.eye(4); pose[0, 3] = 0.2
-    obstacle.update_pose(pose)
-    checker.add_obstacle(obstacle)
-    
-    # No collision
-    transforms = {"link1": np.eye(4)}
-    result = checker.check_environment_collision(transforms)
-    assert result is None
-    
-    # Collision
-    transforms["link1"][:3, 3] = np.array([0.15, 0, 0])
-    result = checker.check_environment_collision(transforms)
-    assert result is not None
-    assert result.is_colliding
+def capsule_to_mesh(capsule: Capsule, subdivisions: int = 8) -> TriangleMesh:
+    mesh = TriangleMesh.from_capsule(capsule.p1, capsule.p2, capsule.radius, subdivisions)
+    mesh.update_pose(capsule.pose)
+    return mesh
+
+def box_to_mesh(box: Box) -> TriangleMesh:
+    mesh = TriangleMesh.from_box(box.size)
+    mesh.update_pose(box.pose)
+    return mesh
 ```
 
-**Step 2: Update CollisionChecker**
-
-Modify `_check_geometry_collision` to detect TriangleMesh and use GJK/EPA:
+**Step 2: Update CollisionChecker._check_geometry_collision**
 
 ```python
 def _check_geometry_collision(self, g1, g2, collision_threshold=0.0):
     from robot_ik.collision.mesh import TriangleMesh
+    
+    is_mesh1 = isinstance(g1, TriangleMesh)
+    is_mesh2 = isinstance(g2, TriangleMesh)
+    
+    if is_mesh1 and is_mesh2:
+        # Tier 2: Mesh-Mesh → GJK + EPA
+        return self._mesh_collision(g1, g2)
+    elif not is_mesh1 and not is_mesh2:
+        # Tier 1: Primitive-Primitive → existing analytical (FAST PATH)
+        return self._primitive_collision(g1, g2, collision_threshold)
+    else:
+        # Mixed: convert primitive to mesh, then GJK
+        from robot_ik.collision.mesh import sphere_to_mesh, capsule_to_mesh, box_to_mesh
+        if isinstance(g1, Sphere): g1 = sphere_to_mesh(g1)
+        elif isinstance(g1, Capsule): g1 = capsule_to_mesh(g1)
+        elif isinstance(g1, Box): g1 = box_to_mesh(g1)
+        if isinstance(g2, Sphere): g2 = sphere_to_mesh(g2)
+        elif isinstance(g2, Capsule): g2 = capsule_to_mesh(g2)
+        elif isinstance(g2, Box): g2 = box_to_mesh(g2)
+        return self._mesh_collision(g1, g2)
+
+def _primitive_collision(self, g1, g2, collision_threshold):
+    """Existing analytical formula code — unchanged, inlined here."""
+    # ... exact copy of current _check_geometry_collision body ...
+
+def _mesh_collision(self, g1, g2):
+    """GJK + EPA for mesh-mesh collision."""
     from robot_ik.collision.gjk import gjk_intersect, gjk_distance
     from robot_ik.collision.epa import epa_penetration
     
-    # Apply poses
-    from robot_ik.collision.mesh import TriangleMesh
-    if isinstance(g1, TriangleMesh) and isinstance(g2, TriangleMesh):
-        if gjk_intersect(g1, g2):
-            depth, normal, contact = epa_penetration(g1, g2)
-            return CollisionResult(
-                is_colliding=True, distance=-depth,
-                contact_point=contact, pair=("", "")
-            )
-        dist, _, _ = gjk_distance(g1, g2)
+    if gjk_intersect(g1, g2):
+        depth, normal, contact = epa_penetration(g1, g2)
         return CollisionResult(
-            is_colliding=dist <= collision_threshold,
-            distance=dist, contact_point=None, pair=("", "")
+            is_colliding=True, distance=-depth,
+            contact_point=contact, pair=("", "")
         )
-    
-    # Fall back to existing primitive checks for backward compat
-    ...existing code...
+    dist, _, _ = gjk_distance(g1, g2)
+    return CollisionResult(
+        is_colliding=False, distance=dist,
+        contact_point=None, pair=("", "")
+    )
 ```
 
-**Step 3: Run all collision tests**
+**Step 3: Write integration tests**
+
+```python
+# tests/collision/test_collision_integration.py
+def test_primitive_fast_path_unaffected():
+    """Existing primitive tests still pass exactly (no accuracy loss)."""
+    # Copy key existing tests to verify regression-free
+
+def test_mixed_primitive_mesh():
+    """Sphere (primitive) vs TriangleMesh (box) → auto-converts sphere."""
+
+def test_mesh_mesh_self_collision():
+    """Two TriangleMesh shapes via CollisionChecker."""
+
+def test_all_existing_collision_tests_pass():
+    """Run all 10 existing tests — ensure 100% backward compatibility."""
+```
+
+**Step 4: Run all tests**
 
 ```bash
 pytest tests/collision/ -v
 ```
 
-**Step 4: Commit**
+**Step 5: Commit**
 
 ```bash
 git add src/robot_ik/collision/ tests/collision/
-git commit -m "feat(collision): integrate GJK/EPA into CollisionChecker"
+git commit -m "feat(collision): three-tier dispatch — primitive fast path + GJK/EPA mesh path"
 ```
 
 ---
 
-### Task 5: Update __init__.py and pyproject.toml
+### Task 5: Export API, add `[collision]` extra, and benchmark tests
 
-**Objective:** Export new API, add scipy dependency.
+**Objective:** Export new API, add scipy dependency, add performance benchmark.
 
 **Files:**
 - Modify: `src/robot_ik/collision/__init__.py`
 - Modify: `pyproject.toml`
+- Create: `tests/collision/test_collision_benchmark.py`
+
+**Step 1: Export new API**
 
 Add to `__init__.py`:
 ```python
-from robot_ik.collision.mesh import TriangleMesh
+from robot_ik.collision.mesh import TriangleMesh, sphere_to_mesh, capsule_to_mesh, box_to_mesh
 from robot_ik.collision.gjk import gjk_distance, gjk_intersect
 from robot_ik.collision.epa import epa_penetration
 ```
 
-Add to `pyproject.toml` dependencies:
+**Step 2: Add optional dependency**
+
 ```toml
+# pyproject.toml
 [project.optional-dependencies]
 collision = ["scipy>=1.10"]
 ```
 
-**Step: Run full test suite**
+**Step 3: Write benchmark test**
+
+```python
+# tests/collision/test_collision_benchmark.py
+import time
+import numpy as np
+from robot_ik.collision import Sphere, CollisionChecker
+from robot_ik.collision.mesh import TriangleMesh
+from robot_ik.collision.gjk import gjk_distance, gjk_intersect
+
+def test_benchmark_primitive_vs_gjk():
+    """Benchmark: primitive analytical vs GJK for sphere-sphere."""
+    import pytest
+    pytest.importorskip("scipy")
+    
+    # Primitive
+    s1, s2 = Sphere(radius=0.1), Sphere(radius=0.1)
+    s2.pose[:3, 3] = [0.5, 0, 0]
+    
+    N = 10000
+    t0 = time.perf_counter()
+    from robot_ik.collision import distance_sphere_to_sphere
+    for _ in range(N):
+        d = distance_sphere_to_sphere(s1, s2)
+    t_prim = (time.perf_counter() - t0) / N * 1e6  # μs
+
+    # GJK
+    m1 = TriangleMesh.from_sphere(0.1, subdivisions=2)
+    m2 = TriangleMesh.from_sphere(0.1, subdivisions=2)
+    pose2 = np.eye(4); pose2[0, 3] = 0.5
+    m2.update_pose(pose2)
+    
+    t0 = time.perf_counter()
+    for _ in range(N):
+        d = gjk_distance(m1, m2)
+    t_gjk = (time.perf_counter() - t0) / N * 1e6  # μs
+    
+    print(f"\n  Primitive: {t_prim:.1f}μs/pair")
+    print(f"  GJK:      {t_gjk:.1f}μs/pair")
+    print(f"  Ratio:    {t_gjk/t_prim:.0f}x slower")
+    
+    # Primitive should be much faster
+    assert t_gjk / t_prim > 10, "GJK should be at least 10x slower than analytical"
+```
+
+**Step 4: Run full test suite**
 
 ```bash
 pytest tests/ -v
 ```
 
-**Commit:**
+**Step 5: Commit**
+
 ```bash
-git add src/robot_ik/collision/__init__.py pyproject.toml
-git commit -m "feat(collision): export GJK/EPA API, add [collision] optional extra"
+git add src/robot_ik/collision/__init__.py pyproject.toml tests/collision/test_collision_benchmark.py
+git commit -m "feat(collision): export GJK/EPA API, add [collision] extra, add benchmark test"
 ```
 
 ---

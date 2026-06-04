@@ -9,6 +9,12 @@
 | [README.md](../../README.md) | 快速入门、安装、使用示例 |
 | [ROADMAP.md](../../ROADMAP.md) | 开发路线图 (已完成 + 计划) |
 
+## 碰撞检测
+
+| 文档 | 内容 |
+|------|------|
+| [碰撞检测](collision.md) | GJK/EPA 算法、TriangleMesh、三层碰撞调度 |
+
 ## 设计与原理
 
 | 文档 | 内容 |

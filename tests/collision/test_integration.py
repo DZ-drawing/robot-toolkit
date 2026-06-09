@@ -7,6 +7,7 @@ Tests that CollisionChecker correctly dispatches:
 """
 
 import numpy as np
+import pytest
 
 from robot_ik.collision import (
     Box,
@@ -295,6 +296,7 @@ def test_box_to_mesh():
 
 def test_capsule_to_mesh():
     """Capsule.to_mesh() produces a valid TriangleMesh."""
+    pytest.importorskip("scipy")
     c = Capsule(
         p1=np.array([0.0, 0.0, 0.0]),
         p2=np.array([0.0, 0.0, 0.2]),

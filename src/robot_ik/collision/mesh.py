@@ -311,7 +311,7 @@ class TriangleMesh:
             # the axis shrinks: r_axis = sqrt(max(0, radius^2 - (t*L)^2))
             # For t in [0,1], distance from nearest end:
             d_end = min(t, 1.0 - t) * length
-            r_lat = np.sqrt(max(0.0, radius ** 2 - d_end ** 2))
+            r_lat = np.sqrt(max(0.0, radius**2 - d_end**2))
 
             if r_lat < 1e-12:
                 # Pole point

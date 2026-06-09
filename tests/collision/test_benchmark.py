@@ -19,8 +19,8 @@ from robot_ik.collision import (
     TriangleMesh,
     distance_sphere_to_sphere,
 )
-from robot_ik.collision.gjk import gjk_distance, gjk_intersect
 from robot_ik.collision.epa import epa_penetration
+from robot_ik.collision.gjk import gjk_distance, gjk_intersect
 
 # Skip all benchmarks unless --run-benchmark is passed
 pytestmark = pytest.mark.skipif(

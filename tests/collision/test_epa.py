@@ -5,9 +5,9 @@ import pytest
 
 scipy = pytest.importorskip("scipy")
 
-from robot_ik.collision.mesh import TriangleMesh
-from robot_ik.collision.epa import epa_penetration
-from robot_ik.collision.gjk import gjk_intersect
+from robot_ik.collision.epa import epa_penetration  # noqa: E402
+from robot_ik.collision.gjk import gjk_intersect  # noqa: E402
+from robot_ik.collision.mesh import TriangleMesh  # noqa: E402
 
 
 class TestEPASphereOverlap:

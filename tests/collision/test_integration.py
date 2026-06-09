@@ -6,8 +6,6 @@ Tests that CollisionChecker correctly dispatches:
 - Tier 2: primitive-mesh (auto-convert primitive to mesh, then GJK/EPA)
 """
 
-import copy
-
 import numpy as np
 
 from robot_ik.collision import (
@@ -19,10 +17,10 @@ from robot_ik.collision import (
     TriangleMesh,
 )
 
-
 # ------------------------------------------------------------------
 # Helper: create a box mesh at a given position
 # ------------------------------------------------------------------
+
 
 def _make_box_mesh(size, position):
     """Create a TriangleMesh box at the given world position."""
@@ -45,6 +43,7 @@ def _make_sphere_mesh(radius, position, subdivisions=1):
 # ------------------------------------------------------------------
 # Tier 1: primitive-only collision still uses analytical fast path
 # ------------------------------------------------------------------
+
 
 def test_primitive_sphere_sphere_still_works():
     """Sphere-sphere collision uses Tier 1 (unchanged)."""
@@ -111,6 +110,7 @@ def test_primitive_environment_collision():
 # ------------------------------------------------------------------
 # Tier 2: mesh-mesh collision via CollisionChecker
 # ------------------------------------------------------------------
+
 
 def test_mesh_mesh_overlapping_boxes():
     """Two overlapping box meshes should collide."""
@@ -180,7 +180,8 @@ def test_mesh_mesh_with_link_transforms():
     T2[:3, 3] = np.array([0.15, 0.0, 0.0])
 
     result = checker.check_self_collision(
-        {"mesh_link1": T1, "mesh_link2": T2}, ignore_adjacent=False,
+        {"mesh_link1": T1, "mesh_link2": T2},
+        ignore_adjacent=False,
     )
 
     assert result is not None
@@ -190,6 +191,7 @@ def test_mesh_mesh_with_link_transforms():
 # ------------------------------------------------------------------
 # Tier 2: mixed primitive + mesh collision
 # ------------------------------------------------------------------
+
 
 def test_primitive_sphere_vs_mesh_box():
     """Sphere (primitive) vs Box (mesh) → auto-convert sphere to mesh."""
@@ -268,6 +270,7 @@ def test_primitive_vs_mesh_environment_collision():
 # to_mesh() convenience methods
 # ------------------------------------------------------------------
 
+
 def test_sphere_to_mesh():
     """Sphere.to_mesh() produces a valid TriangleMesh."""
     s = Sphere(radius=0.1)
@@ -307,6 +310,7 @@ def test_capsule_to_mesh():
 # ------------------------------------------------------------------
 # Direct _check_geometry_collision dispatch verification
 # ------------------------------------------------------------------
+
 
 def test_dispatch_mesh_mesh():
     """_check_geometry_collision dispatches mesh-mesh to GJK/EPA."""

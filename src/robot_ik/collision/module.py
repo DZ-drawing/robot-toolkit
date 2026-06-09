@@ -40,6 +40,7 @@ class Sphere:
     def to_mesh(self, subdivisions: int = 1):
         """Convert to TriangleMesh for GJK/EPA collision."""
         from robot_ik.collision.mesh import TriangleMesh
+
         mesh = TriangleMesh.from_sphere(self.radius, subdivisions=subdivisions)
         mesh.pose = self.pose.copy()
         return mesh
@@ -57,8 +58,12 @@ class Capsule:
     def to_mesh(self, subdivisions: int = 6):
         """Convert to TriangleMesh for GJK/EPA collision."""
         from robot_ik.collision.mesh import TriangleMesh
+
         mesh = TriangleMesh.from_capsule(
-            self.p1, self.p2, self.radius, subdivisions=subdivisions,
+            self.p1,
+            self.p2,
+            self.radius,
+            subdivisions=subdivisions,
         )
         mesh.pose = self.pose.copy()
         return mesh
@@ -74,6 +79,7 @@ class Box:
     def to_mesh(self):
         """Convert to TriangleMesh for GJK/EPA collision."""
         from robot_ik.collision.mesh import TriangleMesh
+
         mesh = TriangleMesh.from_box(self.size)
         mesh.pose = self.pose.copy()
         return mesh
@@ -414,8 +420,8 @@ class CollisionChecker:
         If one geometry is a primitive, it is converted to TriangleMesh first,
         then GJK is used for intersection/distance and EPA for penetration info.
         """
-        from robot_ik.collision.gjk import gjk_intersect, gjk_distance
         from robot_ik.collision.epa import epa_penetration
+        from robot_ik.collision.gjk import gjk_distance, gjk_intersect
         from robot_ik.collision.mesh import TriangleMesh
 
         # Convert primitives to mesh if needed

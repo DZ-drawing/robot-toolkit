@@ -56,6 +56,7 @@ def _safe_normalize(v: np.ndarray) -> np.ndarray:
 # Geometry helpers
 # ======================================================================
 
+
 def _closest_on_line(
     origin: np.ndarray,
     direction: np.ndarray,
@@ -157,6 +158,7 @@ def _closest_on_triangle(
 # ======================================================================
 # Minkowski difference support
 # ======================================================================
+
 
 def _support_minkowski(
     shape_a: TriangleMesh,
@@ -364,6 +366,7 @@ def _evolve_simplex(simplex: list) -> tuple[bool, np.ndarray]:
 # Simplex-to-origin distance helpers
 # ======================================================================
 
+
 def _segment_distance(
     simplex: list,
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -459,6 +462,7 @@ def _simplex_distance(
 # ======================================================================
 # Public API
 # ======================================================================
+
 
 def gjk_intersect(
     shape_a: TriangleMesh,

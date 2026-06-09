@@ -1,3 +1,4 @@
+from robot_ik.collision.mesh import TriangleMesh
 from robot_ik.collision.module import (
     Box,
     Capsule,
@@ -13,11 +14,10 @@ from robot_ik.collision.module import (
     distance_sphere_to_capsule,
     distance_sphere_to_sphere,
 )
-from robot_ik.collision.mesh import TriangleMesh
 
 try:
-    from robot_ik.collision.gjk import gjk_distance, gjk_intersect
     from robot_ik.collision.epa import epa_penetration
+    from robot_ik.collision.gjk import gjk_distance, gjk_intersect
 except ImportError:
     gjk_intersect = None  # type: ignore[assignment]
     gjk_distance = None  # type: ignore[assignment]

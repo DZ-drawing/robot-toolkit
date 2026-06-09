@@ -83,7 +83,7 @@ def _build_initial_tetrahedron(shape_a, shape_b):
         for s2i in range(3):
             if s1i == s2i:
                 continue
-            s3i = 3 - s1i - s2i
+            3 - s1i - s2i
             for s1 in (1.0, -1.0):
                 for s2 in (1.0, -1.0):
                     d = np.zeros(3)
@@ -109,13 +109,13 @@ def _build_initial_tetrahedron(shape_a, shape_b):
     for i in range(len(points)):
         for j in range(i + 1, len(points)):
             for k in range(j + 1, len(points)):
-                for l in range(k + 1, len(points)):
-                    p0, p1, p2, p3 = points[i][0], points[j][0], points[k][0], points[l][0]
+                for l_idx in range(k + 1, len(points)):
+                    p0, p1, p2, p3 = points[i][0], points[j][0], points[k][0], points[l_idx][0]
                     vol = abs(np.dot(p0 - p3, np.cross(p1 - p3, p2 - p3))) / 6.0
                     if vol < _EPS:
                         continue
                     if best_verts is None or vol > best_vol:
-                        best_verts = (i, j, k, l)
+                        best_verts = (i, j, k, l_idx)
                         best_vol = vol
 
     if best_verts is None:
@@ -152,7 +152,7 @@ def _find_closest_face(faces):
     """Find face closest to origin. Returns (index, distance)."""
     best_i = -1
     best_d = float("inf")
-    for i, (n, d, _) in enumerate(faces):
+    for i, (_n, d, _) in enumerate(faces):
         if d < best_d:
             best_d = d
             best_i = i
@@ -174,9 +174,7 @@ def _find_adjacent(faces, skip, edge_fs):
     return None
 
 
-def epa_penetration(
-    shape_a, shape_b, gjk_simplex=None, max_iterations=64, tolerance=1e-6
-):
+def epa_penetration(shape_a, shape_b, gjk_simplex=None, max_iterations=64, tolerance=1e-6):
     """Compute penetration depth, contact normal, and contact point.
 
     Args:

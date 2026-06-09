@@ -5,7 +5,7 @@ import pytest
 
 scipy = pytest.importorskip("scipy")
 
-from robot_ik.collision.mesh import TriangleMesh
+from robot_ik.collision.mesh import TriangleMesh  # noqa: E402
 
 
 def test_create_from_vertices_and_faces():
@@ -114,9 +114,7 @@ def test_from_sphere():
     from scipy.spatial import ConvexHull
 
     hull = ConvexHull(mesh.vertices)
-    assert hull.vertices.shape[0] == mesh.vertices.shape[0], (
-        "Sphere mesh should be fully convex"
-    )
+    assert hull.vertices.shape[0] == mesh.vertices.shape[0], "Sphere mesh should be fully convex"
 
     # All vertices should be approximately at radius distance from origin
     radii = np.linalg.norm(mesh.vertices, axis=1)
@@ -153,9 +151,7 @@ def test_from_capsule():
         t_clamped = np.clip(t, 0.0, length)
         closest_on_axis = p1 + t_clamped * axis_dir
         dist = np.linalg.norm(v - closest_on_axis)
-        assert dist <= radius + 1e-6, (
-            f"Vertex {v} is {dist} from axis, exceeds radius {radius}"
-        )
+        assert dist <= radius + 1e-6, f"Vertex {v} is {dist} from axis, exceeds radius {radius}"
 
     print("  [PASS] test_from_capsule")
 

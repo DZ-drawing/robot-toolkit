@@ -7,14 +7,12 @@ from robot_ik.collision.gjk import (
     _closest_on_line,
     _closest_on_triangle,
     _segment_distance,
-    _simplex_distance,
-    _triple_product,
     _triangle_distance,
+    _triple_product,
     gjk_distance,
     gjk_intersect,
 )
 from robot_ik.collision.mesh import TriangleMesh
-
 
 # ======================================================================
 # Helper-function tests
@@ -111,9 +109,7 @@ class TestClosestOnTriangle:
         a = np.array([1.0, 0.0, 0.0])
         b = np.array([0.0, 1.0, 0.0])
         c = np.array([0.0, 0.0, 1.0])
-        for query in [np.array([0.1, 0.2, 0.3]),
-                       np.array([-1, -1, -1]),
-                       np.array([0.5, 0.5, 0.5])]:
+        for query in [np.array([0.1, 0.2, 0.3]), np.array([-1, -1, -1]), np.array([0.5, 0.5, 0.5])]:
             _, bary = _closest_on_triangle(a, b, c, origin=query)
             assert abs(sum(bary) - 1.0) < 1e-10
 
@@ -126,24 +122,27 @@ class TestClosestOnTriangle:
 class TestSegmentDistance:
     def test_closest_at_interior(self):
         """Segment [-1,0,0]→[1,0,0], origin at [0,0,0] → midpoint."""
-        simplex = [(np.array([-1.0, 0.0, 0.0]), None, None),
-                   (np.array([1.0, 0.0, 0.0]), None, None)]
+        simplex = [
+            (np.array([-1.0, 0.0, 0.0]), None, None),
+            (np.array([1.0, 0.0, 0.0]), None, None),
+        ]
         pt, bary = _segment_distance(simplex)
         np.testing.assert_allclose(pt, [0, 0, 0], atol=1e-10)
         np.testing.assert_allclose(bary, [0.5, 0.5], atol=1e-10)
 
     def test_closest_at_vertex_a(self):
         """Segment [2,0,0]→[5,0,0], origin at [0,0,0] → vertex A."""
-        simplex = [(np.array([2.0, 0.0, 0.0]), None, None),
-                   (np.array([5.0, 0.0, 0.0]), None, None)]
+        simplex = [(np.array([2.0, 0.0, 0.0]), None, None), (np.array([5.0, 0.0, 0.0]), None, None)]
         pt, bary = _segment_distance(simplex)
         np.testing.assert_allclose(pt, [2, 0, 0], atol=1e-10)
         np.testing.assert_allclose(bary, [1, 0], atol=1e-10)
 
     def test_closest_at_vertex_b(self):
         """Segment [-5,0,0]→[-2,0,0], origin at [0,0,0] → vertex B."""
-        simplex = [(np.array([-5.0, 0.0, 0.0]), None, None),
-                   (np.array([-2.0, 0.0, 0.0]), None, None)]
+        simplex = [
+            (np.array([-5.0, 0.0, 0.0]), None, None),
+            (np.array([-2.0, 0.0, 0.0]), None, None),
+        ]
         pt, bary = _segment_distance(simplex)
         np.testing.assert_allclose(pt, [-2, 0, 0], atol=1e-10)
         np.testing.assert_allclose(bary, [0, 1], atol=1e-10)
@@ -382,9 +381,7 @@ class TestGJKConsistency:
             assert gjk_intersect(b1, b2) is False
             distance, _, _ = gjk_distance(b1, b2)
             # gap = 4 - 0.5 - 0.5 = 3.0
-            assert abs(distance - 3.0) < 0.2, (
-                f"Axis {axis}: expected ~3.0, got {distance}"
-            )
+            assert abs(distance - 3.0) < 0.2, f"Axis {axis}: expected ~3.0, got {distance}"
 
 
 if __name__ == "__main__":

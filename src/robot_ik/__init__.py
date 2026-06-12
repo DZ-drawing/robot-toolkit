@@ -61,7 +61,7 @@ except (ImportError, ModuleNotFoundError):
     HAS_DYN_FAST = False
 
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
     "DHParam",
     "RobotModel",

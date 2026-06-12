@@ -37,7 +37,7 @@ addopts = "-v --tb=short"
 
 [project]
 name = "robot-ik"
-version = "0.3.0"
+version = "0.4.0"
 description = "Fast 6-DOF Inverse Kinematics and Rigid Body Dynamics (C++ accelerated)"
 readme = "README.md"
 requires-python = ">=3.10"

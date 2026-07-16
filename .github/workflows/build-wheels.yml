@@ -33,14 +33,14 @@ jobs:
           platforms: all
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.23.4
         env:
           CIBW_BUILD: cp310-* cp311-* cp312-*
           CIBW_SKIP: "*-musllinux_* pp* *-win32 *-manylinux_i686"
           CIBW_ARCHS_LINUX: auto64
           CIBW_ARCHS_WINDOWS: auto64
           CIBW_TEST_COMMAND: pytest {project}/tests/ -v --no-header
-          CIBW_TEST_REQUIRES: pytest numpy scipy
+          CIBW_TEST_REQUIRES: "pytest numpy scipy>=1.10,<1.16"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Install build tools and cibuildwheel
         run: |
-          python3 -m pip install cibuildwheel
+          python3 -m pip install cibuildwheel==2.23.4
 
       - name: Build wheels
         run: python3 -m cibuildwheel --output-dir wheelhouse
@@ -68,7 +68,7 @@ jobs:
           CIBW_ARCHS_MACOS: arm64
           CIBW_BEFORE_BUILD_MACOS: pip install cmake
           CIBW_TEST_COMMAND: "pytest {project}/tests/ -v --no-header"
-          CIBW_TEST_REQUIRES: pytest numpy scipy
+          CIBW_TEST_REQUIRES: "pytest numpy scipy>=1.10,<1.16"
           MACOSX_DEPLOYMENT_TARGET: "10.9"
 
       - uses: actions/upload-artifact@v4

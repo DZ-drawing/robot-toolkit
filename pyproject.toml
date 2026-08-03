@@ -41,7 +41,7 @@ version = "0.4.0"
 description = "Fast 6-DOF Inverse Kinematics and Rigid Body Dynamics (C++ accelerated)"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
     {name = "Danny Zeng", email = "dz3ai@outlook.com"}
 ]

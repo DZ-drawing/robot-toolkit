@@ -17,9 +17,9 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-22.04, windows-2022]
 
@@ -39,8 +39,9 @@ jobs:
           CIBW_SKIP: "*-musllinux_* pp* *-win32 *-manylinux_i686"
           CIBW_ARCHS_LINUX: auto64
           CIBW_ARCHS_WINDOWS: auto64
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_TEST_COMMAND: pytest {project}/tests/ -v --no-header
-          CIBW_TEST_REQUIRES: "pytest numpy scipy>=1.10,<1.16"
+          CIBW_TEST_REQUIRES: "pytest numpy scipy"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -50,8 +51,7 @@ jobs:
   build_macos:
     name: Build macOS wheels (self-hosted)
     runs-on: [self-hosted, macOS, ARM64]
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +68,7 @@ jobs:
           CIBW_ARCHS_MACOS: arm64
           CIBW_BEFORE_BUILD_MACOS: pip install cmake
           CIBW_TEST_COMMAND: "pytest {project}/tests/ -v --no-header"
-          CIBW_TEST_REQUIRES: "pytest numpy scipy>=1.10,<1.16"
+          CIBW_TEST_REQUIRES: "pytest numpy scipy"
           MACOSX_DEPLOYMENT_TARGET: "10.9"
 
       - uses: actions/upload-artifact@v4
@@ -79,8 +79,7 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-22.04
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -109,6 +108,7 @@ jobs:
     environment: pypi
     permissions:
       id-token: write
+    timeout-minutes: 5
     if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
 
     steps:

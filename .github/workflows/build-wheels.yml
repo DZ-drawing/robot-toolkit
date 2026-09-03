@@ -49,27 +49,29 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_macos:
-    name: Build macOS wheels (self-hosted)
-    runs-on: [self-hosted, macOS, ARM64]
-    timeout-minutes: 20
+    name: Build macOS wheels (arm64)
+    runs-on: macos-14
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build tools and cibuildwheel
-        run: |
-          python3 -m pip install cibuildwheel==2.23.4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.23.4
 
       - name: Build wheels
-        run: python3 -m cibuildwheel --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BUILD: cp312-macosx_arm64
+          CIBW_BUILD: "cp310-macosx_arm64 cp311-macosx_arm64 cp312-macosx_arm64"
           CIBW_SKIP: "*-musllinux_* pp*"
           CIBW_ARCHS_MACOS: arm64
           CIBW_BEFORE_BUILD_MACOS: pip install cmake
           CIBW_TEST_COMMAND: "pytest {project}/tests/ -v --no-header"
           CIBW_TEST_REQUIRES: "pytest numpy scipy"
-          MACOSX_DEPLOYMENT_TARGET: "10.9"
 
       - uses: actions/upload-artifact@v4
         with:

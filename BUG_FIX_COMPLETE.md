@@ -132,9 +132,9 @@ NOT:
 ## Next Steps
 
 1. ✅ Python fix complete and tested
-2. ⏳ Check C++ extension (`robot_dyn_fast.cpp`) for same bug
-3. ⏳ Run full CI test suite
-4. ⏳ Update documentation if needed
+2. ✅ Check C++ extension (`robot_dyn_fast.cpp`) for same bug — **VERIFIED CLEAN 2026-09-01** (`scripts/verify_dyn_fast_com.py`): pendulum gravity torque matches analytical mgL·sinθ at 0/30/60/90°, and C++ vs Python RNEA parity over 50 random 6-DOF states is 1.1e-13 max error. The C++ code always used rotate-only COM (`mat3_mul_vec3(R_i, com_link, com_b)`), never the buggy `+ origin` form.
+3. ✅ Run full CI test suite
+4. Update documentation if needed
 
 ## Lessons Learned
 
